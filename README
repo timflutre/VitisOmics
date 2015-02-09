@@ -1,0 +1,14 @@
+Vvin-PN40024
+============
+
+This directory contains data, code and analyzes for the Vvin-PN40024 project.
+This project aims at handling the reference genome sequences of cultivar Pinot
+Noir 40024 of Vitis vinifera (grapevine) in a reproducible way. It is funded
+by the Institut National de la Recherche Agronomique (INRA). The coordinator
+is Timothée Flutre from the INRA.
+
+The copyright is owned by the INRA. See the COPYING file for usage permissions.
+
+The content of this directory is versioned using git, the central repository
+being hosted on GitHub:
+https://github.com/timflutre/Vvin-PN40024
