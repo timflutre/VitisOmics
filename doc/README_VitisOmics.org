@@ -11,7 +11,7 @@
 This document contains the documentation for the "VitisOmics" project.
 This project aims at handling "omics" data in the genus Vitis (e.g. grapevine) in an open and reproducible way.
 
-Such data are available from various places, Genoscope, URGI, NCBI, EBI, etc, and several committes from the IGGP (International Grape Genome Program) strive at improving interoperability.
+Such data are available from various places, Genoscope, URGI, NCBI, EBI, etc, and [[http://www.vitaceae.org/index.php/Genome_Sequencing][several]] [[http://www.vitaceae.org/index.php/Annotation][committes]] from the IGGP (International Grape Genome Program) strive at improving interoperability.
 But my attempt, via the usage of git and GitHub, could prove for the community to be a useful addition to these efforts.
 
 The project directory is organized as advised by Noble ([[http://dx.doi.org/10.1371/journal.pcbi.1000424][PLoS Computational Biology 2009]]):
