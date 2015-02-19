@@ -28,6 +28,10 @@ cd ..; tar -czvf VitisOmics.tar.gz \
 --exclude="*~" --exclude=".*" VitisOmics
 #+end_src
 
+** Contributors
+
+As of today: Timothée Flutre, Charles Romieu, Gautier Sarah
+
 * Data
 #+begin_src sh
 cd data/
@@ -52,6 +56,8 @@ When needed, the script decompresses zip files and compress them again but with 
 ../../src/download_ncbi.bash
 #+end_src
 
+Note the important file =scaffold_names= which provides the correspondence between original scaffold names (i.e. from the sequencing center) and various NCBI identifiers (RefSeq, GenBank, etc).
+
 ** EBI
 12X.0 as well as soft-masking by RepeatMasker
 
@@ -67,6 +73,8 @@ cd results/
 On a computer cluster, indexed files could be copied for usage by everyone, e.g. in =/Genomics/Vitis= if on the CIRAD cluster of the [[http://southgreen.fr/][SouthGreen]] platform.
 
 TODO: use the 5-letter code VITVI to name files, as advised by Grimplet et al, 2014
+
+TODO: keep the info about the source (URGI or NCBI) because differences in terms of N spacers and additional scaffolds (from Aegilops) at the NCBI
 
 ** URGI
 *** Reformat sequence headers of file =VV_chr12x.fsa.gz=

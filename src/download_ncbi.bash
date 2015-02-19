@@ -9,6 +9,7 @@
 wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/README
 wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/README_CURRENT_BUILD
 
+wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/scaffold_names
 wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/allcontig.agp.gz
 
 mkdir -p Assembled_chromosomes; cd Assembled_chromosomes/
