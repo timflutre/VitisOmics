@@ -72,36 +72,72 @@ cd results/
 
 On a computer cluster, indexed files could be copied for usage by everyone, e.g. in =/Genomics/Vitis= if on the CIRAD cluster of the [[http://southgreen.fr/][SouthGreen]] platform.
 
-TODO: use the 5-letter code VITVI to name files, as advised by Grimplet et al, 2014
-
-TODO: keep the info about the source (URGI or NCBI) because differences in terms of N spacers and additional scaffolds (from Aegilops) at the NCBI
+One needs to keep the info about the source (URGI or NCBI) because differences in terms of N spacers and additional scaffolds (from Aegilops) at the NCBI.
 
 ** URGI
-*** Reformat sequence headers of file =VV_chr12x.fsa.gz=
 #+begin_src sh
-../../src/reformat_VV_chr12x.bash # take some time
+cd urgi/
+#+end_src
+
+*** Reformat sequence headers for =VITVI_PN40024_12x_v0_chroms_URGI=
+Launch script:
+#+begin_src sh
+ln -s ../../data/urgi/VV_chr12x.fsa.gz .
+echo "../../src/reformat_VV_chr12x.bash" \
+  | qsub -cwd -j y -V -N reformat_VV_chr12x -q bioinfo.q
+#+end_src
+
+Check:
+#+begin_src sh
 zcat VV_chr12x.fsa.gz | wc -l # 8240706
-zcat Vvin-PN40024-12x-chr.fa.gz | wc -l # 8240706
-diff <(zcat Vvin-PN40024-12x-chr.fa.gz) <(zcat VV_chr12x.fsa.gz)
+zcat VV_chr12x.fsa.gz | grep -c ">" # 33
+zcat VITVI_PN40024_12x_v0_chroms_URGI.fa.gz | wc -l # 8240706
+zcat VITVI_PN40024_12x_v0_chroms_URGI.fa.gz | grep -c ">" # 33
+diff <(zcat VV_chr12x.fsa.gz) <(zcat VITVI_PN40024_12x_v0_chroms_URGI.fa.gz)
 #+end_src
 
-*** Reformat sequence headers of file =VV_12X_embl_102_Scaffolds.fsa.gz=
-so that they comply with =transpose_annotation=:
-https://github.com/SouthGreenPlatform/utils/tree/master/transpose_annotation/
+Only the headers differ, not the sequences, so everything is fine.
 
+Basic stats:
 #+begin_src sh
-../../src/reformat_VV_12X_embl_102_Scaffolds.bash # take some time
-zcat VV_12X_embl_102_Scaffolds.fsa.gz | wc -l # 8091565
-zcat Vvin-PN40024-12x-scaff.fa.gz | wc -l # 8091565
-diff <(zcat Vvin-PN40024-12x-scaff.fa.gz) <(zcat VV_12X_embl_102_Scaffolds.fsa.gz)
+zcat VITVI_PN40024_12x_v0_chroms_URGI.fa.gz | md5sum # eff315994fafe35333462b9595e10ce5
 #+end_src
 
-*** Format Vvin-PN40024-12x-chr.fa.gz for BLASTn
+*** Reformat sequence headers for =VITVI_PN40024_12x_v0_scaffolds_EMBL_r102=
+Launch script:
+#+begin_src sh
+ln -s ../../data/urgi/VV_12X_embl_102_Scaffolds.fsa.gz .
+echo "../../src/reformat_VV_12X_embl_102_Scaffolds.bash" \
+  | qsub -cwd -j y -V -N reformat_VV_12X_embl_102_Scaffolds -q bioinfo.q
+#+end_src
+
+Check:
+#+begin_src sh
+zcat VV_12X_embl_102_Scaffolds.fsa.gz | wc -l # 8091565
+zcat VV_12X_embl_102_Scaffolds.fsa.gz | grep -c ">" # 2059
+zcat VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz | wc -l # 8091565
+zcat VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz | grep -c ">" # 2059
+diff <(zcat VV_12X_embl_102_Scaffolds.fsa.gz) <(zcat VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz)
+#+end_src
+
+Only the headers differ, not the sequences, so everything is fine.
+
+Basic stats:
+#+begin_src sh
+zcat VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz | md5sum # 4fa2432d7a66c019c7cb41ee4d0cb7bc
+#+end_src
+
+*** Reformat sequence headers for =VITVI_PN40024_12x_v0_contigs_EMBL_r102=
+TODO
+
+*** Format =VITVI_PN40024_12x_v0_chroms_URGI= for BLASTn
+TODO: change Vvin to VITVI
 #+begin_src sh
 ../../src/format_Vvin-PN40024-12x-chr_blastn.bash
 #+end_src
 
-*** Index Vvin-PN40024-12x-chr.fa.gz for BWA
+*** Index =VITVI_PN40024_12x_v0_chroms_URGI= for BWA
+TODO: change Vvin to VITVI
 #+begin_src sh
 ../../src/index_Vvin-PN40024-12x-chr_bwa.bash
 #+end_src
