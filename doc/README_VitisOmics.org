@@ -130,6 +130,30 @@ zcat VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz | md5sum # 4fa2432d7a66c019c
 *** Reformat sequence headers for =VITVI_PN40024_12x_v0_contigs_EMBL_r102=
 TODO
 
+*** Reformat sequence headers for =VITVI_PN40024_12x_v2_chroms_URGI=
+Launch script:
+#+begin_src sh
+ln -s ../../data/urgi/12Xv2_grapevine_genome_assembly.fa.gz .
+echo "../../src/reformat_12Xv2_grapevine_genome_assembly.bash" \
+  | qsub -cwd -j y -V -N reformat_12Xv2_grapevine_genome_assembly -q bioinfo.q
+#+end_src
+
+Check:
+#+begin_src sh
+zcat 12Xv2_grapevine_genome_assembly.fa.gz | wc -l # 8103449
+zcat 12Xv2_grapevine_genome_assembly.fa.gz | grep -c ">" # 20
+zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz | wc -l # 8103449
+zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz | grep -c ">" # 20
+diff <(zcat 12Xv2_grapevine_genome_assembly.fa.gz) <(zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz)
+#+end_src
+
+Only the headers differ, not the sequences, so everything is fine.
+
+Basic stats:
+#+begin_src sh
+zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz | md5sum # 4e487c28eaf19ef59b0b6128b73935af
+#+end_src
+
 *** Format =VITVI_PN40024_12x_v0_chroms_URGI= for BLASTn
 TODO: change Vvin to VITVI
 #+begin_src sh
@@ -137,7 +161,15 @@ TODO: change Vvin to VITVI
 #+end_src
 
 *** Index =VITVI_PN40024_12x_v0_chroms_URGI= for BWA
-TODO: change Vvin to VITVI
+Launch:
 #+begin_src sh
-../../src/index_Vvin-PN40024-12x-chr_bwa.bash
+echo "../../src/bwa_index_VITVI_PN40024_12x_v0_chroms_URGI.bash" \
+  | qsub -cwd -j y -V -N bwa_index_VITVI_PN40024_12x_v0_chroms_URGI -q bioinfo.q
+#+end_src
+
+*** Index =VITVI_PN40024_12x_v2_chroms_URGI= for BWA
+Launch:
+#+begin_src sh
+echo "../../src/bwa_index_VITVI_PN40024_12x_v2_chroms_URGI.bash" \
+  | qsub -cwd -j y -V -N bwa_index_VITVI_PN40024_12x_v2_chroms_URGI -q bioinfo.q
 #+end_src
