@@ -74,6 +74,8 @@ On a computer cluster, indexed files could be copied for usage by everyone, e.g.
 
 One needs to keep the info about the source (URGI or NCBI) because differences in terms of N spacers and additional scaffolds (from Aegilops) at the NCBI.
 
+TODO: compress fasta files with BGZIP instead of GZIP
+
 ** URGI
 #+begin_src sh
 cd urgi/
@@ -204,4 +206,13 @@ Launch:
 #+begin_src sh
 echo "../../src/bwa_index_VITVI_PN40024_12x_v2_chroms_URGI.bash" \
   | qsub -cwd -j y -V -N bwa_index_VITVI_PN40024_12x_v2_chroms_URGI -q bioinfo.q
+#+end_src
+
+*** Prepare =VITVI_PN40024_12x_v2_chroms_URGI= for SAMtools and Picard
+Make an index as well as a SAM header.
+
+Launch:
+#+begin_src sh
+echo "../../src/samtools-picard_prep_VITVI_PN40024_12x_v2_chroms_URGI.bash" \
+  | qsub -cwd -j y -V -N samtools-picard_prep_VITVI_PN40024_12x_v2_chroms_URGI -q normal.q
 #+end_src
