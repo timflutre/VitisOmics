@@ -219,8 +219,15 @@ echo "../../src/samtools-picard_prep_VITVI_PN40024_12x_v2_chroms_URGI.bash" \
 *** Index =VITVI_PN40024_12x_v0_chroms_URGI= for Bowtie2
 Launch:
 #+begin_src sh
+module load compiler/gcc/4.9.2 bioinfo/bowtie2/2.2.5
 echo "../../src/bowtie2_index_VITVI_PN40024_12x_v0_chroms_URGI.bash" \
-  | qsub -cwd -j y -V -N bowtie2_index_VITVI_PN40024_12x_v0_chroms_URGI -q normal.q
+  | qsub -cwd -j y -V -N bowtie2_build_VITVI_PN40024_12x_v0_chroms_URGI -q normal.q
 #+end_src
 
 *** Index =VITVI_PN40024_12x_v2_chroms_URGI= for Bowtie2
+Launch:
+#+begin_src sh
+module load compiler/gcc/4.9.2 bioinfo/bowtie2/2.2.5
+echo "../../src/bowtie2_index_VITVI_PN40024_12x_v2_chroms_URGI.bash" \
+  | qsub -cwd -j y -V -N bowtie2_build_VITVI_PN40024_12x_v2_chroms_URGI -q normal.q
+#+end_src
