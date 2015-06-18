@@ -12,7 +12,7 @@ This document contains the documentation for the "VitisOmics" project.
 This project aims at handling "omics" data in the genus Vitis (e.g. grapevine) in an open and reproducible way.
 
 Such data are available from various places, Genoscope, URGI, NCBI, EBI, etc, and [[http://www.vitaceae.org/index.php/Genome_Sequencing][several]] [[http://www.vitaceae.org/index.php/Annotation][committes]] from the IGGP (International Grape Genome Program) strive at improving interoperability.
-But my attempt, via the usage of git and GitHub, could prove for the community to be a useful addition to these efforts.
+But my attempt, via the usage of [[http://www.git-scm.com/book/en/v2][git]] and GitHub, could prove for the community to be a useful addition to these efforts.
 
 The project directory is organized as advised by Noble ([[http://dx.doi.org/10.1371/journal.pcbi.1000424][PLoS Computational Biology 2009]]):
 
@@ -30,7 +30,10 @@ cd ..; tar -czvf VitisOmics.tar.gz \
 
 ** Contributors
 
-As of today: Timothée Flutre, Charles Romieu, Gautier Sarah
+The person roles comply with R's guidelines (The R Journal Vol. 4/1, June 2012).
+
+- Timothée Flutre (cre,aut)
+- Gautier Sarah (ctb)
 
 * Data
 #+begin_src sh
@@ -86,7 +89,7 @@ Launch script:
 #+begin_src sh
 ln -s ../../data/urgi/VV_chr12x.fsa.gz .
 echo "../../src/reformat_VV_chr12x.bash" \
-  | qsub -cwd -j y -V -N reformat_VV_chr12x -q bioinfo.q
+  | qsub -cwd -j y -V -N reformat_VV_chr12x -q normal.q
 #+end_src
 
 Check:
@@ -110,7 +113,7 @@ Launch script:
 #+begin_src sh
 ln -s ../../data/urgi/VV_12X_embl_102_Scaffolds.fsa.gz .
 echo "../../src/reformat_VV_12X_embl_102_Scaffolds.bash" \
-  | qsub -cwd -j y -V -N reformat_VV_12X_embl_102_Scaffolds -q bioinfo.q
+  | qsub -cwd -j y -V -N reformat_VV_12X_embl_102_Scaffolds -q normal.q
 #+end_src
 
 Check:
@@ -137,7 +140,7 @@ Launch script:
 #+begin_src sh
 ln -s ../../data/urgi/12Xv2_grapevine_genome_assembly.fa.gz .
 echo "../../src/reformat_12Xv2_grapevine_genome_assembly.bash" \
-  | qsub -cwd -j y -V -N reformat_12Xv2_grapevine_genome_assembly -q bioinfo.q
+  | qsub -cwd -j y -V -N reformat_12Xv2_grapevine_genome_assembly -q normal.q
 #+end_src
 
 Check:
@@ -198,14 +201,14 @@ TODO: change Vvin to VITVI
 Launch:
 #+begin_src sh
 echo "../../src/bwa_index_VITVI_PN40024_12x_v0_chroms_URGI.bash" \
-  | qsub -cwd -j y -V -N bwa_index_VITVI_PN40024_12x_v0_chroms_URGI -q bioinfo.q
+  | qsub -cwd -j y -V -N bwa_index_VITVI_PN40024_12x_v0_chroms_URGI -q normal.q
 #+end_src
 
 *** Index =VITVI_PN40024_12x_v2_chroms_URGI= for BWA
 Launch:
 #+begin_src sh
 echo "../../src/bwa_index_VITVI_PN40024_12x_v2_chroms_URGI.bash" \
-  | qsub -cwd -j y -V -N bwa_index_VITVI_PN40024_12x_v2_chroms_URGI -q bioinfo.q
+  | qsub -cwd -j y -V -N bwa_index_VITVI_PN40024_12x_v2_chroms_URGI -q normal.q
 #+end_src
 
 *** Prepare =VITVI_PN40024_12x_v2_chroms_URGI= for SAMtools and Picard
@@ -216,10 +219,10 @@ Launch:
 echo "../../src/samtools-picard_prep_VITVI_PN40024_12x_v2_chroms_URGI.bash" \
   | qsub -cwd -j y -V -N samtools-picard_prep_VITVI_PN40024_12x_v2_chroms_URGI -q normal.q
 #+end_src
+
 *** Index =VITVI_PN40024_12x_v0_chroms_URGI= for Bowtie2
 Launch:
 #+begin_src sh
-module load compiler/gcc/4.9.2 bioinfo/bowtie2/2.2.5
 echo "../../src/bowtie2_index_VITVI_PN40024_12x_v0_chroms_URGI.bash" \
   | qsub -cwd -j y -V -N bowtie2_build_VITVI_PN40024_12x_v0_chroms_URGI -q normal.q
 #+end_src
@@ -227,7 +230,6 @@ echo "../../src/bowtie2_index_VITVI_PN40024_12x_v0_chroms_URGI.bash" \
 *** Index =VITVI_PN40024_12x_v2_chroms_URGI= for Bowtie2
 Launch:
 #+begin_src sh
-module load compiler/gcc/4.9.2 bioinfo/bowtie2/2.2.5
 echo "../../src/bowtie2_index_VITVI_PN40024_12x_v2_chroms_URGI.bash" \
   | qsub -cwd -j y -V -N bowtie2_build_VITVI_PN40024_12x_v2_chroms_URGI -q normal.q
 #+end_src

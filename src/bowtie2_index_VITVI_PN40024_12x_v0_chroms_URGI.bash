@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright (C) 2014-2015 Institut National de la Recherche Agronomique (INRA)
+# Copyright (C) 2015 Institut National de la Recherche Agronomique (INRA)
 # License: GPL-3+
 # Persons: Gautier SARAH [cre,aut]
 
