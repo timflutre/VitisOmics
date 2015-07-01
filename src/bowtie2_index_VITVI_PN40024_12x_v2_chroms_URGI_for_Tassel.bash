@@ -17,7 +17,7 @@ if [ ! -f VITVI_PN40024_12x_v2_chroms_URGI.fa.gz ]; then
 fi
 zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz | sed 's/>chrUkn/>chr0/' >VITVI_PN40024_12x_v2_chroms_URGI_for_Tassel.tmp.fa
 bowtie2-build VITVI_PN40024_12x_v2_chroms_URGI_for_Tassel.tmp.fa VITVI_PN40024_12x_v2_chroms_URGI_for_Tassel  >& bowtie2-build_VITVI_PN40024_12x_v2_chroms_URGI_for_Tassel.log
-#rm VITVI_PN40024_12x_v2_chroms_URGI_for_Tassel.tmp.fa
+rm VITVI_PN40024_12x_v2_chroms_URGI_for_Tassel.tmp.fa
 
 echo "done!"
 date
