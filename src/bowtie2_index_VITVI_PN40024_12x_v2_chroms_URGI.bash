@@ -16,9 +16,9 @@ if [ ! -f VITVI_PN40024_12x_v2_chroms_URGI.fa.gz ]; then
   exit 1
 fi
 
-zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz >VITVI_PN40024_12x_v2_chroms_URGI.tmp.fa
-bowtie2-build VITVI_PN40024_12x_v2_chroms_URGI.tmp.fa VITVI_PN40024_12x_v2_chroms_URGI  >& bowtie2-build_VITVI_PN40024_12x_v2_chroms_URGI.log
-rm VITVI_PN40024_12x_v2_chroms_URGI.tmp.fa
+zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz > VITVI_PN40024_12x_v2_chroms_URGI.tmp.fa
+bowtie2-build VITVI_PN40024_12x_v2_chroms_URGI.tmp.fa VITVI_PN40024_12x_v2_chroms_URGI >& bowtie2-build_VITVI_PN40024_12x_v2_chroms_URGI.log
+rm -f VITVI_PN40024_12x_v2_chroms_URGI.tmp.fa
 
 echo "done!"
 date
