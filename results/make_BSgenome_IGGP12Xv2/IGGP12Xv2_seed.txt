@@ -1,0 +1,22 @@
+Package: BSgenome.Vvinifera.URGI.IGGP12Xv2
+Title: Full reference nuclear genome sequences for Vitis vinifera cv. PN40024 (IGGP version 12Xv2)
+Description: Full reference nuclear genome sequences for grapevine (Vitis vinifera cultivar Pinot Noir PN40024) as assembled by the IGGP (version 12Xv2) and available at the URGI
+Version: 0.1
+Author: Timothee Flutre [cre,aut]
+Maintainer: Timothee Flutre <timothee.flutre@supagro.inra.fr>
+License: CC0
+organism: Vitis vinifera cv. PN40024
+species: Vitis vinifera
+provider: URGI
+provider_version: IGGP12Xv2
+release_date: Nov. 2013
+release_name: IGGP 12Xv2
+source_url: https://urgi.versailles.inra.fr/download/vitis/12Xv2_grapevine_genome_assembly.fa.gz
+organism_biocview: Vitis_vinifera_cvPN40024
+BSgenomeObjname: Vvinifera
+seqnames: paste("chr", c(1:19, "Ukn"), sep="")
+SrcDataFiles: https://urgi.versailles.inra.fr/download/vitis/12Xv2_grapevine_genome_assembly.fa.gz
+PkgExamples: genome$chr1 # same as genome[["chr1"]]
+seqs_srcdir: /NAS/davem_data/daav/external_public/VitisOmics/results/make_BSgenome_IGGP12Xv2
+seqfiles_suffix: .fa.gz
+ondisk_seq_format: 2bit
