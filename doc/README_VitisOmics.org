@@ -8,25 +8,29 @@
 #+latex_header: \evensidemargin 0.5cm
 
 * Overview
-This document contains the documentation for the "VitisOmics" project.
+This document describes the "VitisOmics" project.
 This project aims at handling "omics" data in the genus Vitis (e.g. grapevine) in an open and reproducible way.
+Nevertheless, it requires some basic knowledge and skills about bioinformatics on GNU/Linux computers.
 
-Such data are available from various places, Genoscope, URGI, NCBI, EBI, etc, and [[http://www.vitaceae.org/index.php/Genome_Sequencing][several]] [[http://www.vitaceae.org/index.php/Annotation][committes]] from the IGGP (International Grape Genome Program) strive at improving interoperability.
-But my attempt, via the usage of [[http://www.git-scm.com/book/en/v2][git]] and GitHub, could prove for the community to be a useful addition to these efforts.
+Such "omics" data are already available from various places, such as URGI, NCBI, EBI, etc; and [[http://www.vitaceae.org/index.php/Genome_Sequencing][several]] [[http://www.vitaceae.org/index.php/Annotation][committes]] from the IGGP (International Grape Genome Program) strive at improving interoperability.
+But my attempt, via the usage of [[http://www.git-scm.com/book/en/v2][git]] and [[https://github.com/timflutre/VitisOmics][GitHub]], could prove for the community to be a useful addition to these efforts.
 
-The project directory is organized as advised by Noble ([[http://dx.doi.org/10.1371/journal.pcbi.1000424][PLoS Computational Biology 2009]]):
-
+The project directory is organized as advised by Noble ([[http://dx.doi.org/10.1371/journal.pcbi.1000424][PLoS Computational Biology 2009]]).
 On any Unix-like system, it is easily done with the following commands:
 #+begin_src sh
-touch AUTHORS COPYING README; mkdir -p doc data src bin results
+mkdir -p VitisOmics; cd VitisOmics/
+touch AUTHORS COPYING README; mkdir -p doc data src results
 #+end_src
 
-On any Unix-like system, it can also be easily compressed and transferred (ignoring large data files):
+On any Unix-like system, the project directory can also be easily compressed and transferred (ignoring large data files):
 #+begin_src sh
 cd ..; tar -czvf VitisOmics.tar.gz \
 --exclude=VitisOmics/data --exclude=VitisOmics/results \
 --exclude="*~" --exclude=".*" VitisOmics
 #+end_src
+
+In order to concretely promote collaborative editing in a distributed manner, the content of the "VitisOmics" repository should be based on "plain text" files.
+As a consequence, this document is written in the [[http://orgmode.org/][org]] format, and can thus be automatically exported into the pdf format, best by [[https://www.gnu.org/software/emacs/][emacs]], but also by [[http://pandoc.org/][pandoc]].
 
 ** Contributors
 
@@ -37,15 +41,16 @@ The person roles comply with R's guidelines (The R Journal Vol. 4/1, June 2012).
 
 * Data
 #+begin_src sh
-cd data/
+mkdir -p data; cd data/
 #+end_src
 
-TODO: retrieve genome data from other cultivars than PN40024, e.g. Sultanina and Tannat
+TODO: retrieve genome data from other cultivars than PN40024, e.g. Sultanina
 
 ** URGI
 - https://urgi.versailles.inra.fr/Species/Vitis/Data-Sequences/Genome-sequences
 
 #+begin_src sh
+mkdir -p urgi; cd urgi/
 ../../src/download_urgi.bash
 #+end_src
 
@@ -56,6 +61,7 @@ When needed, the script decompresses zip files and compress them again but with 
 - ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/
 
 #+begin_src sh
+mkdir -p ncbi; cd ncbi/
 ../../src/download_ncbi.bash
 #+end_src
 
@@ -65,23 +71,24 @@ Note the important file =scaffold_names= which provides the correspondence betwe
 12X.0 as well as soft-masking by RepeatMasker
 
 #+begin_src sh
+mkdir -p ebi; cd ebi/
 ../../src/download_ebi.bash
 #+end_src
 
 * Results
 #+begin_src sh
-cd results/
+mkdir -p results; cd results/
 #+end_src
+
+TODO: compress fasta files with =bgzip= instead of =gzip=
 
 On a computer cluster, indexed files could be copied for usage by everyone, e.g. in =/Genomics/Vitis= if on the CIRAD cluster of the [[http://southgreen.fr/][SouthGreen]] platform.
 
-One needs to keep the info about the source (URGI or NCBI) because differences in terms of N spacers and additional scaffolds (from Aegilops) at the NCBI.
-
-TODO: compress fasta files with BGZIP instead of GZIP
+We need to keep the information about the data source (e.g. URGI or NCBI) because there can be differences in terms of N spacers and additional scaffolds (from Aegilops?) at the NCBI.
 
 ** URGI
 #+begin_src sh
-cd urgi/
+mkdir -p urgi; cd urgi/
 #+end_src
 
 *** Reformat sequence headers for =VITVI_PN40024_12x_v0_chroms_URGI=
@@ -168,7 +175,7 @@ sum=0; for(i=2;i<=length(a);++i){sum+=length(a[i])};
 print a[1]": "sum; sumTot+=sum} END{print sumTot}'
 #+end_src
 
-| header                                                  | length( bp) |
+| header                                                  | length (bp) |
 |---------------------------------------------------------+-------------|
 | chr1 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    24233538 |
 | chr2 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    18891843 |
@@ -243,3 +250,73 @@ Launch:
 echo "../../src/bowtie2_index_VITVI_PN40024_12x_v2_chroms_URGI_for_Tassel.bash" \
   | qsub -cwd -j y -V -N bowtie2_build_VITVI_PN40024_12x_v2_chroms_URGI_for_Tassel -q normal.q
 #+end_src
+
+*** Translate CRIBI annotations from 12X.0 to 12X.2
+Requirement: use or write a script taking as input the 12X.0 GFF3 file as well as the 12.0-12.2 AGP file, and returns as output the 12X.2 GFF3 file
+
+The URGI provides the following AGP file: =golden_path_V2_111113_allChr.csv=.
+Unfortunately, after looking at the official [[https://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/][specification]] of the AGP format, the URGI file doesn't seem to be valid, neither for version 1.1, nor 2.2.
+
+TODO: contact URGI
+
+** R/Bioconductor
+- http://www.bioconductor.org/
+- Huber, W. et al. Orchestrating high-throughput genomic analysis with bioconductor. Nature Methods 12, 115-121 (2015). URL http://dx.doi.org/10.1038/nmeth.3252.
+
+TODO: see [[http://www.bioconductor.org/packages/release/bioc/html/AnnotationHub.html][AnnotationHub]]
+
+*** BSgenome IGGP12Xv2 package
+http://bioconductor.org/packages/release/bioc/html/BSgenome.html
+
+Retrieve the sequence data from URGI:
+#+begin_src sh
+cd results/
+mkdir -p make_BSgenome_IGGP12Xv2
+cd make_BSgenome_IGGP12Xv2/
+ln -s ../../data/urgi/12Xv2_grapevine_genome_assembly.fa.gz .
+#+end_src
+
+Split into one chromosome per file (in the headers, discard everything after the first space):
+#+begin_src bash
+zcat 12Xv2_grapevine_genome_assembly.fa.gz | awk 'BEGIN{RS=">"} {if(NF==0)next; split($0,a,"\n"); split(a[1],b," "); print b[1]; print ">"b[1] > b[1]".fa"; for(i=2;i<length(a);++i){print a[i] >> b[1]".fa"}}'
+gzip chr*.fa
+#+end_src
+
+Prepare the seed file (=IGGP12Xv2_seed.txt=) by hand as indicated in the [[http://bioconductor.org/packages/release/bioc/vignettes/BSgenome/inst/doc/BSgenomeForge.pdf][vignette]] as well as in the official R [[https://cran.r-project.org/doc/manuals/R-exts.html#The-DESCRIPTION-file][manual]] "Writing R extensions".
+Following [[http://dx.doi.org/10.1186/1756-0500-5-494][this article]], I chose the [[http://creativecommons.org/publicdomain/zero/1.0/legalcode][CC0 license]] (present in the R list of licenses in =share/licenses/license.db=).
+
+Forge the target package from the seed file:
+#+begin_src sh
+echo "date; echo \"library(BSgenome); forgeBSgenomeDataPkg(\\\"IGGP12Xv2_seed.txt\\\")\" | R --vanilla; date" | qsub -cwd -j y -V -N forge_BSgenome -q normal.q
+#+end_src
+
+Build the package and check it:
+#+begin_src sh
+echo "date; R CMD build BSgenome.Vvinifera.URGI.IGGP12Xv2; date" | qsub -cwd -j y -V -N build_BSgenome -q normal.q
+echo "date; R CMD check BSgenome.Vvinifera.URGI.IGGP12Xv2_0.1.tar.gz; date" | qsub -cwd -j y -V -N check_BSgenome -q normal.q
+#+end_src
+
+The target package is now ready to be installed:
+#+begin_src sh
+R CMD INSTALL BSgenome.Vvinifera.URGI.IGGP12Xv2_0.1.tar.gz
+#+end_src
+
+TODO: contact A.-F. Adam-Blondon (part of IGGP) and other colleagues from INRA to get their feedback
+
+*** BSgenome IGGP12Xv0 package
+http://bioconductor.org/packages/release/bioc/html/BSgenome.html
+
+Retrieve the sequence data from NCBI (neglect =unlocalized= and =unplaced= sequences), and change headers into "chr"<id>:
+#+begin_src sh
+cd results/
+mkdir -p make_BSgenome_IGGP12Xv0
+cd make_BSgenome_IGGP12Xv0/
+ls ../../data/ncbi/Assembled_chromosomes/vvi_ref_12X_chr*.fa.gz | while read f; do name=$(basename $f | sed 's/.fa.gz//' | awk '{split($0,a,"_"); print a[4]}'); echo ${name}; echo ">${name}" > ${name}.fa; zcat $f | grep -v ">" >> ${name}.fa; gzip ${name}.fa; done
+#+end_src
+
+TODO: Prepare the seed file (=IGGP12Xv0_seed.txt=) by editing the one used for =IGGP12Xv2=.
+
+*** TxDb CRIBI12Xv0 package
+http://www.bioconductor.org/packages/release/bioc/html/GenomicFeatures.html
+
+TODO
