@@ -3,7 +3,7 @@
 
 # see https://github.com/timflutre/perso/blob/master/emacs
 #+latex_header: \setlength{\parindent}{0pt}
-#+latex_header: \textwidth 16cm
+#+latex_header: \textwidth 17cm
 #+latex_header: \oddsidemargin 0.5cm
 #+latex_header: \evensidemargin 0.5cm
 
@@ -162,10 +162,10 @@ zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz | md5sum # 4e487c28eaf19ef59b0b6128b
 Length of each sequence:
 #+begin_src sh
 zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz \
-  awk 'BEGIN{RS=">"} {split($0,a,"\n"); 
+  | awk 'BEGIN{RS=">"} {split($0,a,"\n"); 
 if(length(a)==0)next; 
 sum=0; for(i=2;i<=length(a);++i){sum+=length(a[i])}; 
-print a[1]": "sum}'
+print a[1]": "sum; sumTot+=sum} END{print sumTot}'
 #+end_src
 
 | header                                                  | length( bp) |
@@ -190,6 +190,7 @@ print a[1]": "sum}'
 | chr18 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    34568450 |
 | chr19 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    24695667 |
 | chrUkn Vitis vinifera\vert{}PN40024\vert{}assembly12x.2 |    27389308 |
+| total                                                   |   486205130 |
 
 *** Format =VITVI_PN40024_12x_v0_chroms_URGI= for BLASTn
 TODO: change Vvin to VITVI
@@ -235,6 +236,8 @@ echo "../../src/bowtie2_index_VITVI_PN40024_12x_v2_chroms_URGI.bash" \
 #+end_src
 
 *** Index =VITVI_PN40024_12x_v2_chroms_URGI= for Bowtie2 compatible with Tassel
+Tassel requires numbers as chromosome identifiers.
+
 Launch:
 #+begin_src sh
 echo "../../src/bowtie2_index_VITVI_PN40024_12x_v2_chroms_URGI_for_Tassel.bash" \
