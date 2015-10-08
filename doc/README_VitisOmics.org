@@ -199,6 +199,78 @@ print a[1]": "sum; sumTot+=sum} END{print sumTot}'
 | chrUkn Vitis vinifera\vert{}PN40024\vert{}assembly12x.2 |    27389308 |
 | total                                                   |   486205130 |
 
+*** Reformat sequence headers for =VITVI_PN40024_8x_chroms_URGI=
+Launch script:
+#+begin_src sh
+ln -s ../../data/urgi/VV_chr8x.fsa.gz .
+echo "../../src/reformat_VV_chr8x.bash" \
+  | qsub -cwd -j y -V -N reformat_VV_chr8x -q normal.q
+#+end_src
+
+Check:
+#+begin_src sh
+zcat VV_chr8x.fsa.gz | wc -l # 8291865
+zcat VV_chr8x.fsa.gz | grep -c ">" # 35
+zcat VITVI_PN40024_8x_chroms_URGI.fa.gz | wc -l # 8291865
+zcat VITVI_PN40024_8x_chroms_URGI.fa.gz | grep -c ">" # 35
+diff <(zcat VV_chr8x.fsa.gz) <(zcat VITVI_PN40024_8x_chroms_URGI.fa.gz)
+#+end_src
+
+Only the headers differ, not the sequences, so everything is fine.
+
+Basic stats:
+#+begin_src sh
+zcat VITVI_PN40024_8x_chroms_URGI.fa.gz | md5sum # 4b6ea1cb4ff189ac587fa269077885b5
+#+end_src
+
+Length of each sequence:
+#+begin_src sh
+zcat VITVI_PN40024_8x_chroms_URGI.fa.gz \
+  | awk 'BEGIN{RS=">"} {split($0,a,"\n"); 
+if(length(a)==0)next; 
+sum=0; for(i=2;i<=length(a);++i){sum+=length(a[i])}; 
+print a[1]": "sum; sumTot+=sum} END{print sumTot}'
+#+end_src
+
+| header                                                                                 | length (bp) |
+|----------------------------------------------------------------------------------------+-------------|
+| chr1 CU462738\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_1   |    15630816 |
+| chr10 CU462747\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_10 |     9647040 |
+| chr10_random                                                                           |     2206354 |
+| chr11 CU462748\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_11 |    13936303 |
+| chr11_random                                                                           |     1958407 |
+| chr12 CU462749\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_12 |    18540817 |
+| chr12_random                                                                           |     2826407 |
+| chr13 CU462750\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_13 |    15191948 |
+| chr13_random                                                                           |     1580403 |
+| chr14 CU462751\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_14 |    19480434 |
+| chr14_random                                                                           |     5432426 |
+| chr15 CU462752\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_15 |     7693613 |
+| chr15_random                                                                           |     4297576 |
+| chr16 CU462753\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_16 |     8158851 |
+| chr16_random                                                                           |     4524411 |
+| chr17 CU462754\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_17 |    13059092 |
+| chr17_random                                                                           |     1763011 |
+| chr18 CU462755\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_18 |    19691255 |
+| chr18_random                                                                           |     5949186 |
+| chr19 CU462756\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_19 |    14071813 |
+| chr19_random                                                                           |     1912523 |
+| chr1_random                                                                            |     5496190 |
+| chr2 CU462739\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_2   |    17603400 |
+| chr2_random                                                                            |       60809 |
+| chr3 CU462740\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_3   |    10186927 |
+| chr3_random                                                                            |     1343266 |
+| chr4 CU462741\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_4   |    19293076 |
+| chr5 CU462742\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_5   |    23428299 |
+| chr6 CU462743\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_6   |    24148918 |
+| chr7 CU462744\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_7   |    15233747 |
+| chr7_random                                                                            |      176143 |
+| chr8 CU462745\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_8   |    21557227 |
+| chr8_random                                                                            |       12125 |
+| chr9 CU462746\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_9   |    16532244 |
+| chrUn_random                                                                           |   154883714 |
+| total                                                                                  |   497508771 |
+
 *** Format =VITVI_PN40024_12x_v0_chroms_URGI= for BLASTn
 TODO: change Vvin to VITVI
 #+begin_src sh
