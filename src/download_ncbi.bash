@@ -30,6 +30,19 @@ mkdir -p ARCHIVE
 cd ARCHIVE/
 mkdir -p BUILD.1.1
 cd BUILD.1.1/
+
+wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/README
+wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/README_CURRENT_BUILD
+
+wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/scaffold_names
+
+mkdir -p Assembled_chromosomes
+cd Assembled_chromosomes/
+for i in {1..19}; do
+  wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/Assembled_chromosomes/vvi_ref_chr${i}.fa.gz
+done
+cd ..
+
 mkdir -p CHRS; cd CHRS/
 for i in {1..9}; do
   wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/CHR_0${i}/vvi_ref_chr${i}.fa.gz
@@ -39,4 +52,6 @@ for i in {10..19}; do
 done
 wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/CHR_Pltd/vvi_ref_chrPltd.fa.gz
 wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/CHR_Un/vvi_ref_chrUn.fa.gz
-cd ../../..
+cd ../
+
+cd ../..
