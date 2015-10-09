@@ -328,8 +328,11 @@ Requirement: use or write a script taking as input the 12X.0 GFF3 file as well a
 
 The URGI provides the following AGP file: =golden_path_V2_111113_allChr.csv=.
 Unfortunately, after looking at the official [[https://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/][specification]] of the AGP format, the URGI file doesn't seem to be valid, neither for version 1.1, nor 2.2.
+After contacting URGI, they told me they were working on it (October 2015).
 
-TODO: contact URGI
+Another [[https://github.com/SouthGreenPlatform/utils/tree/master/transpose_annotation][script]] was developped by G. Sarah, but it suffers from several [[https://github.com/SouthGreenPlatform/utils/issues/1][issues]].
+
+TODO: test [[http://crossmap.sourceforge.net/][CrossMap]]
 
 ** R/Bioconductor
 - http://www.bioconductor.org/
@@ -373,7 +376,9 @@ The target package is now ready to be installed:
 R CMD INSTALL BSgenome.Vvinifera.URGI.IGGP12Xv2_0.1.tar.gz
 #+end_src
 
-TODO: contact A.-F. Adam-Blondon (part of IGGP) and other colleagues from INRA to get their feedback
+A.-F. Adam-Blondon (part of IGGP) and other colleagues from INRA gave positive feedback.
+I hence sent the package to the Bioconductor team.
+I hope it will soon be available for download via =biocLite()=.
 
 *** BSgenome IGGP12Xv0 package
 http://bioconductor.org/packages/release/bioc/html/BSgenome.html
@@ -388,7 +393,7 @@ ls ../../data/ncbi/Assembled_chromosomes/vvi_ref_12X_chr*.fa.gz | while read f; 
 
 TODO: Prepare the seed file (=IGGP12Xv0_seed.txt=) by editing the one used for =IGGP12Xv2=.
 
-*** TxDb CRIBI12Xv0 package
+*** TxDb IGGP12Xv0 package from NCBI annotations
 http://www.bioconductor.org/packages/release/bioc/html/GenomicFeatures.html
 
-TODO
+TODO: use =makeTxDbFromGFF()=
