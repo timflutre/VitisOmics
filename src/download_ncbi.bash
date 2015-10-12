@@ -35,6 +35,8 @@ wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BU
 wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/README_CURRENT_BUILD
 
 wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/scaffold_names
+wget --timestamping --retr-symlinks ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/allcontig.agp.gz
+wget --timestamping --retr-symlinks ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/seq_contig.md.gz
 
 mkdir -p Assembled_chromosomes
 cd Assembled_chromosomes/

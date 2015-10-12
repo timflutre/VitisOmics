@@ -1,5 +1,5 @@
 #+title: VitisOmics
-#+author: Timothée Flutre
+#+author: (see contributors below)
 
 # see https://github.com/timflutre/perso/blob/master/emacs
 #+latex_header: \setlength{\parindent}{0pt}
@@ -39,15 +39,26 @@ The person roles comply with R's guidelines (The R Journal Vol. 4/1, June 2012).
 - Timothée Flutre (cre,aut)
 - Gautier Sarah (ctb)
 
+** References
+As an introduction, the NCBI has open web pages about genome assembly:
+- [[http://www.ncbi.nlm.nih.gov/assembly/basics/][Assembly information]];
+- [[http://www.ncbi.nlm.nih.gov/assembly/model/][NCBI Genome Assembly Model]];
+- [[http://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/][AGP specification]].
+
+Then, the original article for grapevine is a must read:
+- [[http://dx.doi.org/10.1038/nature06148][Jaillon, et al]]. The grapevine genome sequence suggests ancestral hexaploidization in major angiosperm phyla. Nature 449, 463-467 (2007).
+
 * Data
 #+begin_src sh
 mkdir -p data; cd data/
 #+end_src
 
+Genomic sequences and annotations for grapevine are present at multiple locations, and it is not always easy to know precisely what the links are between the files available at these locations.
+
 TODO: retrieve genome data from other cultivars than PN40024, e.g. Sultanina
 
 ** URGI
-- https://urgi.versailles.inra.fr/Species/Vitis/Data-Sequences/Genome-sequences
+- https://urgi.versailles.inra.fr/Species/Vitis
 
 #+begin_src sh
 mkdir -p urgi; cd urgi/
@@ -55,6 +66,8 @@ mkdir -p urgi; cd urgi/
 #+end_src
 
 When needed, the script decompresses zip files and compress them again but with gzip instead.
+
+The AGP file for the PN40024 8x assembly is not available at URGI's web site.
 
 ** NCBI
 - http://www.ncbi.nlm.nih.gov/genome/401
@@ -67,7 +80,7 @@ mkdir -p ncbi; cd ncbi/
 
 Note the important file =scaffold_names= which provides the correspondence between original scaffold names (i.e. from the sequencing center) and various NCBI identifiers (RefSeq, GenBank, etc).
 
-In the archives, build 1.1 corresponds to the 8x genome sequence of PN40024, with the assembly in =Assembled_chromosomes/= whereas the contigs are in each =CHR_x/= directory.
+In =ARCHIVE/=, =BUILD.1.1/= corresponds to the 8x genome sequences of PN40024.
 
 ** EBI
 12X.0 as well as soft-masking by RepeatMasker
@@ -84,122 +97,33 @@ mkdir -p results; cd results/
 
 TODO: compress fasta files with =bgzip= instead of =gzip=
 
-On a computer cluster, indexed files could be copied for usage by everyone, e.g. in =/Genomics/Vitis= if on the CIRAD cluster of the [[http://southgreen.fr/][SouthGreen]] platform.
+** Comparisons of original files
+Files from URGI:
+#+begin_src sh
+cd urgi/
+zcat VV_8X_embl_98_WGS_contigs.fsa.gz | grep -c ">" # 19577
+zcat VV_8X_embl_98_Scaffolds.fsa.gz | grep -c ">" # 3514
+zcat VV_chr8x.fsa.gz | grep -c ">" # 35
+zcat VV_12X_embl_102_WGS_contigs.fsa.gz | grep -c ">" # 14642
+zcat VV_12X_embl_102_Scaffolds.fsa.gz | grep -c ">" # 2059
+zcat VV_chr12x.fsa.gz | grep -c ">" # 33
+zcat 12Xv2_grapevine_genome_assembly.fa.gz | grep -c ">" # 20
+#+end_src
 
-We need to keep the information about the data source (e.g. URGI or NCBI) because there can be differences in terms of N spacers and additional scaffolds (from Aegilops?) at the NCBI.
+Files from NCBI (read first the README's):
+#+begin_src sh
+cd ncbi/
+ls ARCHIVE/BUILD.1.1/CHRS/vvi_ref_chr*.fa.gz | grep -v "Pltd" | while read f; do zcat $f; done | grep -c ">" # 3514
+ls ARCHIVE/BUILD.1.1/Assembled_chromosomes/vvi_ref_chr*.fa.gz | while read f; do zcat $f; done | grep -c ">" # 19
+zcat ARCHIVE/BUILD.1.1/allcontig.agp.gz | grep -v "#" | cut -f 5 | sort | uniq -c # F=1 N=16063 W=19577
+#+end_src
 
-** URGI
+See also the script =src/vitisomics.R= using R and Bioconductor.
+
+** Manipulations of files from URGI
 #+begin_src sh
 mkdir -p urgi; cd urgi/
 #+end_src
-
-*** Reformat sequence headers for =VITVI_PN40024_12x_v0_chroms_URGI=
-Launch script:
-#+begin_src sh
-ln -s ../../data/urgi/VV_chr12x.fsa.gz .
-echo "../../src/reformat_VV_chr12x.bash" \
-  | qsub -cwd -j y -V -N reformat_VV_chr12x -q normal.q
-#+end_src
-
-Check:
-#+begin_src sh
-zcat VV_chr12x.fsa.gz | wc -l # 8240706
-zcat VV_chr12x.fsa.gz | grep -c ">" # 33
-zcat VITVI_PN40024_12x_v0_chroms_URGI.fa.gz | wc -l # 8240706
-zcat VITVI_PN40024_12x_v0_chroms_URGI.fa.gz | grep -c ">" # 33
-diff <(zcat VV_chr12x.fsa.gz) <(zcat VITVI_PN40024_12x_v0_chroms_URGI.fa.gz)
-#+end_src
-
-Only the headers differ, not the sequences, so everything is fine.
-
-Basic stats:
-#+begin_src sh
-zcat VITVI_PN40024_12x_v0_chroms_URGI.fa.gz | md5sum # eff315994fafe35333462b9595e10ce5
-#+end_src
-
-*** Reformat sequence headers for =VITVI_PN40024_12x_v0_scaffolds_EMBL_r102=
-Launch script:
-#+begin_src sh
-ln -s ../../data/urgi/VV_12X_embl_102_Scaffolds.fsa.gz .
-echo "../../src/reformat_VV_12X_embl_102_Scaffolds.bash" \
-  | qsub -cwd -j y -V -N reformat_VV_12X_embl_102_Scaffolds -q normal.q
-#+end_src
-
-Check:
-#+begin_src sh
-zcat VV_12X_embl_102_Scaffolds.fsa.gz | wc -l # 8091565
-zcat VV_12X_embl_102_Scaffolds.fsa.gz | grep -c ">" # 2059
-zcat VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz | wc -l # 8091565
-zcat VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz | grep -c ">" # 2059
-diff <(zcat VV_12X_embl_102_Scaffolds.fsa.gz) <(zcat VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz)
-#+end_src
-
-Only the headers differ, not the sequences, so everything is fine.
-
-Basic stats:
-#+begin_src sh
-zcat VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz | md5sum # 4fa2432d7a66c019c7cb41ee4d0cb7bc
-#+end_src
-
-*** Reformat sequence headers for =VITVI_PN40024_12x_v0_contigs_EMBL_r102=
-TODO
-
-*** Reformat sequence headers for =VITVI_PN40024_12x_v2_chroms_URGI=
-Launch script:
-#+begin_src sh
-ln -s ../../data/urgi/12Xv2_grapevine_genome_assembly.fa.gz .
-echo "../../src/reformat_12Xv2_grapevine_genome_assembly.bash" \
-  | qsub -cwd -j y -V -N reformat_12Xv2_grapevine_genome_assembly -q normal.q
-#+end_src
-
-Check:
-#+begin_src sh
-zcat 12Xv2_grapevine_genome_assembly.fa.gz | wc -l # 8103449
-zcat 12Xv2_grapevine_genome_assembly.fa.gz | grep -c ">" # 20
-zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz | wc -l # 8103449
-zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz | grep -c ">" # 20
-diff <(zcat 12Xv2_grapevine_genome_assembly.fa.gz) <(zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz)
-#+end_src
-
-Only the headers differ, not the sequences, so everything is fine.
-
-Basic stats:
-#+begin_src sh
-zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz | md5sum # 4e487c28eaf19ef59b0b6128b73935af
-#+end_src
-
-Length of each sequence:
-#+begin_src sh
-zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz \
-  | awk 'BEGIN{RS=">"} {split($0,a,"\n"); 
-if(length(a)==0)next; 
-sum=0; for(i=2;i<=length(a);++i){sum+=length(a[i])}; 
-print a[1]": "sum; sumTot+=sum} END{print sumTot}'
-#+end_src
-
-| header                                                  | length (bp) |
-|---------------------------------------------------------+-------------|
-| chr1 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    24233538 |
-| chr2 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    18891843 |
-| chr3 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    20695524 |
-| chr4 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    24711646 |
-| chr5 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    25650743 |
-| chr6 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    22645733 |
-| chr7 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    27355740 |
-| chr8 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    22550362 |
-| chr9 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    23006712 |
-| chr10 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    23503040 |
-| chr11 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    20118820 |
-| chr12 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    24269032 |
-| chr13 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    29075116 |
-| chr14 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    30274277 |
-| chr15 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    20304914 |
-| chr16 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    23572818 |
-| chr17 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    18691847 |
-| chr18 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    34568450 |
-| chr19 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    24695667 |
-| chrUkn Vitis vinifera\vert{}PN40024\vert{}assembly12x.2 |    27389308 |
-| total                                                   |   486205130 |
 
 *** Reformat sequence headers for =VITVI_PN40024_8x_chroms_URGI=
 Launch script:
@@ -273,6 +197,114 @@ print a[1]": "sum; sumTot+=sum} END{print sumTot}'
 | chrUn_random                                                                           |   154883714 |
 | total                                                                                  |   497508771 |
 
+*** Reformat sequence headers for =VITVI_PN40024_12x_v0_contigs_EMBL_r102=
+TODO
+
+*** Reformat sequence headers for =VITVI_PN40024_12x_v0_scaffolds_EMBL_r102=
+Launch script:
+#+begin_src sh
+ln -s ../../data/urgi/VV_12X_embl_102_Scaffolds.fsa.gz .
+echo "../../src/reformat_VV_12X_embl_102_Scaffolds.bash" \
+  | qsub -cwd -j y -V -N reformat_VV_12X_embl_102_Scaffolds -q normal.q
+#+end_src
+
+Check:
+#+begin_src sh
+zcat VV_12X_embl_102_Scaffolds.fsa.gz | wc -l # 8091565
+zcat VV_12X_embl_102_Scaffolds.fsa.gz | grep -c ">" # 2059
+zcat VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz | wc -l # 8091565
+zcat VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz | grep -c ">" # 2059
+diff <(zcat VV_12X_embl_102_Scaffolds.fsa.gz) <(zcat VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz)
+#+end_src
+
+Only the headers differ, not the sequences, so everything is fine.
+
+Basic stats:
+#+begin_src sh
+zcat VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz | md5sum # 4fa2432d7a66c019c7cb41ee4d0cb7bc
+#+end_src
+
+*** Reformat sequence headers for =VITVI_PN40024_12x_v0_chroms_URGI=
+Launch script:
+#+begin_src sh
+ln -s ../../data/urgi/VV_chr12x.fsa.gz .
+echo "../../src/reformat_VV_chr12x.bash" \
+  | qsub -cwd -j y -V -N reformat_VV_chr12x -q normal.q
+#+end_src
+
+Check:
+#+begin_src sh
+zcat VV_chr12x.fsa.gz | wc -l # 8240706
+zcat VV_chr12x.fsa.gz | grep -c ">" # 33
+zcat VITVI_PN40024_12x_v0_chroms_URGI.fa.gz | wc -l # 8240706
+zcat VITVI_PN40024_12x_v0_chroms_URGI.fa.gz | grep -c ">" # 33
+diff <(zcat VV_chr12x.fsa.gz) <(zcat VITVI_PN40024_12x_v0_chroms_URGI.fa.gz)
+#+end_src
+
+Only the headers differ, not the sequences, so everything is fine.
+
+Basic stats:
+#+begin_src sh
+zcat VITVI_PN40024_12x_v0_chroms_URGI.fa.gz | md5sum # eff315994fafe35333462b9595e10ce5
+#+end_src
+
+*** Reformat sequence headers for =VITVI_PN40024_12x_v2_chroms_URGI=
+Launch script:
+#+begin_src sh
+ln -s ../../data/urgi/12Xv2_grapevine_genome_assembly.fa.gz .
+echo "../../src/reformat_12Xv2_grapevine_genome_assembly.bash" \
+  | qsub -cwd -j y -V -N reformat_12Xv2_grapevine_genome_assembly -q normal.q
+#+end_src
+
+Check:
+#+begin_src sh
+zcat 12Xv2_grapevine_genome_assembly.fa.gz | wc -l # 8103449
+zcat 12Xv2_grapevine_genome_assembly.fa.gz | grep -c ">" # 20
+zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz | wc -l # 8103449
+zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz | grep -c ">" # 20
+diff <(zcat 12Xv2_grapevine_genome_assembly.fa.gz) <(zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz)
+#+end_src
+
+Only the headers differ, not the sequences, so everything is fine.
+
+Basic stats:
+#+begin_src sh
+zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz | md5sum # 4e487c28eaf19ef59b0b6128b73935af
+#+end_src
+
+Length of each sequence:
+#+begin_src sh
+zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz \
+  | awk 'BEGIN{RS=">"} {split($0,a,"\n"); 
+if(length(a)==0)next; 
+sum=0; for(i=2;i<=length(a);++i){sum+=length(a[i])}; 
+print a[1]": "sum; sumTot+=sum} END{print sumTot}'
+#+end_src
+
+| header                                                  | length (bp) |
+|---------------------------------------------------------+-------------|
+| chr1 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    24233538 |
+| chr2 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    18891843 |
+| chr3 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    20695524 |
+| chr4 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    24711646 |
+| chr5 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    25650743 |
+| chr6 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    22645733 |
+| chr7 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    27355740 |
+| chr8 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    22550362 |
+| chr9 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    23006712 |
+| chr10 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    23503040 |
+| chr11 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    20118820 |
+| chr12 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    24269032 |
+| chr13 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    29075116 |
+| chr14 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    30274277 |
+| chr15 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    20304914 |
+| chr16 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    23572818 |
+| chr17 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    18691847 |
+| chr18 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    34568450 |
+| chr19 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    24695667 |
+| chrUkn Vitis vinifera\vert{}PN40024\vert{}assembly12x.2 |    27389308 |
+| total                                                   |   486205130 |
+
 *** Format =VITVI_PN40024_12x_v0_chroms_URGI= for BLASTn
 TODO: change Vvin to VITVI
 #+begin_src sh
@@ -336,7 +368,7 @@ Another [[https://github.com/SouthGreenPlatform/utils/tree/master/transpose_anno
 
 TODO: test [[http://crossmap.sourceforge.net/][CrossMap]]
 
-** NCBI
+** Manipulations of files from NCBI
 #+begin_src sh
 mkdir -p ncbi; cd ncbi/
 #+end_src
@@ -366,7 +398,7 @@ Basic stats:
 zcat VITVI_PN40024_8x_chroms_NCBI.fa.gz | md5sum # d8eeff80c824f1b5bd91b4274fddb696
 #+end_src
 
-** R/Bioconductor
+** Creation of R/Bioconductor packages
 - http://www.bioconductor.org/
 - Huber, W. et al. Orchestrating high-throughput genomic analysis with bioconductor. Nature Methods 12, 115-121 (2015). URL http://dx.doi.org/10.1038/nmeth.3252.
 
@@ -424,9 +456,6 @@ ln -s ../../data/urgi/VV_chr12x.fsa.gz .
 #+end_src
 
 TODO: Prepare the seed file (=IGGP12Xv0_seed.txt=) by editing the one used for =IGGP12Xv2=.
-
-*** Brief comparison of sequence content between genome files
-See script =src/comp_seq_content.R= using Bioconductor.
 
 *** TxDb IGGP12Xv0 package from NCBI annotations
 http://www.bioconductor.org/packages/release/bioc/html/GenomicFeatures.html
