@@ -41,24 +41,8 @@ str(agp.gap) # 16063 rows
 
 library(Biostrings) # http://bioconductor.org
 
-VITVI.PN40024.12x.v2.chroms.URGI <-
-  readDNAStringSet(filepath="urgi/VITVI_PN40024_12x_v2_chroms_URGI.fa.gz",
-                   format="fasta")
-length(VITVI.PN40024.12x.v2.chroms.URGI) # 20
-names(VITVI.PN40024.12x.v2.chroms.URGI) # chr1, chr2, etc
-width(VITVI.PN40024.12x.v2.chroms.URGI)
-letterFrequency(VITVI.PN40024.12x.v2.chroms.URGI, letters=c("A","T","G","C","N"))
-
-VITVI.PN40024.12x.v0.chroms.URGI <-
-  readDNAStringSet(filepath="urgi/VITVI_PN40024_12x_v0_chroms_URGI.fa.gz",
-                   format="fasta")
-length(VITVI.PN40024.12x.v0.chroms.URGI) # 33
-names(VITVI.PN40024.12x.v0.chroms.URGI) # chr1, chr1_random, chr2, etc
-width(VITVI.PN40024.12x.v0.chroms.URGI)
-letterFrequency(VITVI.PN40024.12x.v0.chroms.URGI, letters=c("A","T","G","C","N"))
-
 VITVI.PN40024.8x.chroms.URGI <-
-  readDNAStringSet(filepath="urgi/VITVI_PN40024_8x_chroms_URGI.fa.gz",
+  readDNAStringSet(filepath="results/urgi/VITVI_PN40024_8x_chroms_URGI.fa.gz",
                    format="fasta")
 length(VITVI.PN40024.8x.chroms.URGI) # 35
 names(VITVI.PN40024.8x.chroms.URGI) # chr1, chr10, chr10_random, etc
@@ -66,9 +50,13 @@ width(VITVI.PN40024.8x.chroms.URGI)
 letterFrequency(VITVI.PN40024.8x.chroms.URGI, letters=c("A","T","G","C","N"))
 
 VITVI.PN40024.8x.chroms.NCBI <-
-  readDNAStringSet(filepath="ncbi/VITVI_PN40024_8x_chroms_NCBI.fa.gz",
+  readDNAStringSet(filepath="results/ncbi/VITVI_PN40024_8x_chroms_NCBI.fa.gz",
                    format="fasta")
 length(VITVI.PN40024.8x.chroms.NCBI) # 3343
 head(names(VITVI.PN40024.8x.chroms.NCBI), n=20) #
 width(VITVI.PN40024.8x.chroms.NCBI)
 letterFrequency(VITVI.PN40024.8x.chroms.NCBI, letters=c("A","T","G","C","N"))
+
+names(VITVI.PN40024.8x.chroms.URGI[1])
+names(VITVI.PN40024.8x.chroms.NCBI[1])
+VITVI.PN40024.8x.chroms.URGI[1] == VITVI.PN40024.8x.chroms.NCBI[1] # TRUE

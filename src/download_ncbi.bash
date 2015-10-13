@@ -48,12 +48,15 @@ cd ..
 mkdir -p CHRS; cd CHRS/
 for i in {1..9}; do
   wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/CHR_0${i}/vvi_ref_chr${i}.fa.gz
+  wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/CHR_0${i}/vvi_ref_chr${i}.gbs.gz
 done
 for i in {10..19}; do
   wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/CHR_${i}/vvi_ref_chr${i}.fa.gz
+  wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/CHR_${i}/vvi_ref_chr${i}.gbs.gz
 done
-wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/CHR_Pltd/vvi_ref_chrPltd.fa.gz
 wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/CHR_Un/vvi_ref_chrUn.fa.gz
+wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/CHR_Un/vvi_ref_chrUn.gbs.gz
+wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/CHR_Pltd/vvi_ref_chrPltd.fa.gz
 cd ../
 
 cd ../..
