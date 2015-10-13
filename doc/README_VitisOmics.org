@@ -171,6 +171,8 @@ cat scaffold_names | sed 1d | wc -l # 2061
 
 See also the script =src/vitisomics.R= using R and Bioconductor.
 
+TODO: compare scaffold sequences of 12x one by one between URGI and NCBI to understand the discrepancy
+
 Remarks concerning PN40024 at URGI:
 - the file =12x0_chr.agp.info= doesn't correspond to =12x0_chr.agp= (it doesn't even correspond to the description of a proper AGP file, as specified [[http://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/version-1.1/][here]]);
 - no mitochondrial nor chloroplastic data are available.
@@ -286,6 +288,7 @@ Only the headers differ, not the sequences, so everything is fine.
 Basic stats:
 #+begin_src sh
 zcat VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz | md5sum # 4fa2432d7a66c019c7cb41ee4d0cb7bc
+zcat VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz | grep -v ">" | md5sum # df5cdb0c6f73cb133261905374cdf2f2
 #+end_src
 
 *** Reformat sequence headers for =VITVI_PN40024_12x_v0_chroms_URGI=
@@ -438,11 +441,13 @@ mkdir -p ncbi; cd ncbi/
 #+end_src
 
 *** Reformat sequence headers for =VITVI_PN40024_8x_chroms_NCBI=
+TODO: concatenate unplaced scaffolds into a single chrUn ?
+
 Launch script:
 #+begin_src sh
 ln -s ../../data/ncbi/ARCHIVE/BUILD.1.1/Assembled_chromosomes/vvi_ref_chr*.fa.gz .
 ln -s ../../data/ncbi/ARCHIVE/BUILD.1.1/CHRS/vvi_ref_chrUn.fa.gz
-echo "../../src/reformat_chr_NCBI-build-1-1.bash ${i}" \
+echo "../../src/reformat_chr_NCBI-build-1-1.bash" \
   | qsub -cwd -j y -V -N reformat_chroms_NCBI-build-1-1 -q normal.q
 #+end_src
 
@@ -460,6 +465,31 @@ Only the headers differ, not the sequences, so everything is fine.
 Basic stats:
 #+begin_src sh
 zcat VITVI_PN40024_8x_chroms_NCBI.fa.gz | md5sum # d8eeff80c824f1b5bd91b4274fddb696
+#+end_src
+
+*** Reformat sequence headers for =VITVI_PN40024_12x_v0_scaffolds_NCBI=
+Launch script:
+#+begin_src sh
+ls ../../data/ncbi/CHRS/vvi_ref_12X_chr*.fa.gz | grep -v -E "Pltd|MT" | while read f; do ln -s $f .; done
+echo "../../src/reformat_scaffs_NCBI-12x.bash" \
+  | qsub -cwd -j y -V -N reformat_scaffs_NCBI-12x -q normal.q
+#+end_src
+
+Check:
+#+begin_src sh
+\ls vvi_ref_12X_chr* | while read f; do zcat $f; done | wc -l # 6934292
+\ls vvi_ref_12X_chr* | while read f; do zcat $f; done | grep -c ">" # 2059
+zcat VITVI_PN40024_12x_v0_scaffolds_NCBI.fa.gz | wc -l # 6934292
+zcat VITVI_PN40024_12x_v0_scaffolds_NCBI.fa.gz | grep -c ">" # 2059
+diff <(\ls -v vvi_ref_12X_chr* | while read f; do zcat $f; done) <(zcat VITVI_PN40024_12x_v0_scaffolds_NCBI.fa.gz) | less
+#+end_src
+
+Only the headers differ, not the sequences, so everything is fine.
+
+Basic stats:
+#+begin_src sh
+zcat VITVI_PN40024_12x_v0_scaffolds_NCBI.fa.gz | md5sum # 20fa822ed5679519a20fe768c422a701
+zcat VITVI_PN40024_12x_v0_scaffolds_NCBI.fa.gz | grep -v ">" | md5sum # 9ddbb5761fe0e4356c7ef73410011ccb
 #+end_src
 
 ** Creation of R/Bioconductor packages
