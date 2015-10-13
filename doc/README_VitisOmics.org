@@ -80,6 +80,29 @@ Remarks:
 - when needed, the script decompresses zip files and compress them again but with gzip instead;
 - the AGP file for the PN40024 8x assembly is not available at URGI's web site.
 
+At the bottom of the [[https://urgi.versailles.inra.fr/Species/Vitis][page]], one can find the following assemblies summary.
+
+12x.2 assembly:
+- contigs: 14642
+- scaffolds (> 2kb): 2059
+- mapped scaffolds: 366 (coverage of the genome: 95%)
+
+12X.0 assembly:
+- contigs: 14642
+- scaffolds (> 2kb): 2059
+- mapped scaffolds: 211 (coverage of the genome: 91.2%)
+
+8X assembly:
+- contigs: 19577
+- scaffolds: 3514
+- mapped ultracontigs: 191 (coverage of the genome: 68.9%)
+
+N. Choisne from URGI (personal communication, 13/10/2015):
+- "mapped scaffolds": scaffolds anchored on the linkage groups (i.e. chromosomes) using the markers from the reference genetic map;
+- unmapped scaffolds hence are unanchored, and gathered into chrUn;
+- "supercontig" is a synonym of "scaffold";
+- "ultracontig": one level above supercontigs; localized and orientated according to data from BAC libraries.
+
 ** NCBI
 - http://www.ncbi.nlm.nih.gov/genome/401
 - ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/
@@ -128,19 +151,32 @@ zcat VV_chr8x.fsa.gz | grep -c ">" # 35
 zcat VV_12X_embl_102_WGS_contigs.fsa.gz | grep -c ">" # 14642
 zcat VV_12X_embl_102_Scaffolds.fsa.gz | grep -c ">" # 2059
 zcat VV_chr12x.fsa.gz | grep -c ">" # 33
+cat 12x0_chr.agp | wc -l # 390
+cat 12x0_scaffolds.lg | wc -l # 2059
+cat 12x0_chr.lg | wc -l # 33
 zcat 12Xv2_grapevine_genome_assembly.fa.gz | grep -c ">" # 20
 #+end_src
 
-Files from NCBI (read first the README's):
+Files from NCBI:
 #+begin_src sh
 cd ncbi/
 ls ARCHIVE/BUILD.1.1/CHRS/vvi_ref_chr*.fa.gz | grep -v "Pltd" | while read f; do zcat $f; done | grep -c ">" # 3514
 ls ARCHIVE/BUILD.1.1/Assembled_chromosomes/vvi_ref_chr*.fa.gz | while read f; do zcat $f; done | grep -c ">" # 19
 zcat ARCHIVE/BUILD.1.1/allcontig.agp.gz | grep -v "#" | cut -f 5 | sort | uniq -c # F=1 N=16063 W=19577
-cat data/ncbi/ARCHIVE/BUILD.1.1/scaffold_names | sed 1d | wc -l # 3514
+cat ARCHIVE/BUILD.1.1/scaffold_names | sed 1d | wc -l # 3514
+cat scaffold_names | sed 1d | wc -l # 2061
 #+end_src
 
 See also the script =src/vitisomics.R= using R and Bioconductor.
+
+Remarks concerning PN40024 12x.0 at URGI:
+- the file =12x0_chr.agp.info= doesn't correspond to =12x0_chr.agp= (it doesn't even correspond to the description of a proper AGP file, as specified [[http://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/version-1.1/][here]]).
+
+Remarks concerning PN40024 8x at NCBI:
+- contig =NC_007957.1= in =ARCHIVE/BUILD.1.1/allcontig.agp.gz= (with =fragment_type=F= for "finished") corresponds to the chloroplast.
+
+Remarks concerning PN40024 12x at NCBI:
+- =scaffold_names= contains all 2059 scaffolds of nuclear DNA as well as the assembled genome of the mitochondria and the chloroplast.
 
 For its build 1.1 (corresponding to the 8x sequences of the PN40024 variety), the NCBI has one file per assembled chromosome.
 However, all unlocalized and unplaced scaffolds are gathered in a single file =chrUn=.
