@@ -164,18 +164,19 @@ ls ARCHIVE/BUILD.1.1/CHRS/vvi_ref_chr*.fa.gz | grep -v "Pltd" | while read f; do
 ls ARCHIVE/BUILD.1.1/Assembled_chromosomes/vvi_ref_chr*.fa.gz | while read f; do zcat $f; done | grep -c ">" # 19
 zcat ARCHIVE/BUILD.1.1/allcontig.agp.gz | grep -v "#" | cut -f 5 | sort | uniq -c # F=1 N=16063 W=19577
 cat ARCHIVE/BUILD.1.1/scaffold_names | sed 1d | wc -l # 3514
+ls CHRS/vvi_ref_12X_chr*.fa.gz | grep -v -E "Pltd|MT" | while read f; do zcat $f; done | grep -c ">" # 2059
+ls Assembled_chromosomes/vvi_ref_12X_chr*.fa.gz | grep -v -E "Pltd|MT" | while read f; do zcat $f; done | grep -c ">" # 19
 cat scaffold_names | sed 1d | wc -l # 2061
 #+end_src
 
 See also the script =src/vitisomics.R= using R and Bioconductor.
 
-Remarks concerning PN40024 12x.0 at URGI:
-- the file =12x0_chr.agp.info= doesn't correspond to =12x0_chr.agp= (it doesn't even correspond to the description of a proper AGP file, as specified [[http://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/version-1.1/][here]]).
+Remarks concerning PN40024 at URGI:
+- the file =12x0_chr.agp.info= doesn't correspond to =12x0_chr.agp= (it doesn't even correspond to the description of a proper AGP file, as specified [[http://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/version-1.1/][here]]);
+- no mitochondrial nor chloroplastic data are available.
 
-Remarks concerning PN40024 8x at NCBI:
-- contig =NC_007957.1= in =ARCHIVE/BUILD.1.1/allcontig.agp.gz= (with =fragment_type=F= for "finished") corresponds to the chloroplast.
-
-Remarks concerning PN40024 12x at NCBI:
+Remarks concerning PN40024 at NCBI:
+- contig =NC_007957.1= in =ARCHIVE/BUILD.1.1/allcontig.agp.gz= (with =fragment_type=F= for "finished") corresponds to the chloroplast;
 - =scaffold_names= contains all 2059 scaffolds of nuclear DNA as well as the assembled genome of the mitochondria and the chloroplast.
 
 For its build 1.1 (corresponding to the 8x sequences of the PN40024 variety), the NCBI has one file per assembled chromosome.

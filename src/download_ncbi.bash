@@ -12,7 +12,8 @@ wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/README_CUR
 wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/scaffold_names
 wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/allcontig.agp.gz
 
-mkdir -p Assembled_chromosomes; cd Assembled_chromosomes/
+mkdir -p Assembled_chromosomes
+cd Assembled_chromosomes/
 for i in {1..19}; do
   wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/Assembled_chromosomes/seq/vvi_ref_12X_chr${i}.fa.gz
 done
@@ -21,10 +22,28 @@ for x in {"chrMT","chrPltd","unlocalized","unplaced"}; do
 done
 cd ..
 
+mkdir -p CHRS
+cd CHRS/
+for i in {1..9}; do
+  wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/CHR_0${i}/vvi_ref_12X_chr${i}.fa.gz
+  wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/CHR_0${i}/vvi_ref_12X_chr${i}.gbs.gz
+done
+for i in {10..19}; do
+  wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/CHR_${i}/vvi_ref_12X_chr${i}.fa.gz
+  wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/CHR_${i}/vvi_ref_12X_chr${i}.gbs.gz
+done
+wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/CHR_Un/vvi_ref_12X_chrUn.fa.gz
+wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/CHR_Un/vvi_ref_12X_chrUn.gbs.gz
+wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/CHR_Pltd/vvi_ref_12X_chrPltd.fa.gz
+wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/CHR_MT/vvi_ref_12X_chrMT.fa.gz
+cd ../
+
 mkdir -p GFF; cd GFF/
 wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/GFF/ref_12X_scaffolds.gff3.gz
 wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/GFF/ref_12X_top_level.gff3.gz
 cd ..
+
+# -----------------------------------------------------------------------------
 
 mkdir -p ARCHIVE
 cd ARCHIVE/
@@ -45,7 +64,8 @@ for i in {1..19}; do
 done
 cd ..
 
-mkdir -p CHRS; cd CHRS/
+mkdir -p CHRS
+cd CHRS/
 for i in {1..9}; do
   wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/CHR_0${i}/vvi_ref_chr${i}.fa.gz
   wget --timestamping ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/ARCHIVE/BUILD.1.1/CHR_0${i}/vvi_ref_chr${i}.gbs.gz
