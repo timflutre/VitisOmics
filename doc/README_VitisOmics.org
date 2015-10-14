@@ -263,9 +263,6 @@ print a[1]": "sum; sumTot+=sum} END{print sumTot}'
 | chrUn_random                                                                           |   154883714 |
 | total                                                                                  |   497508771 |
 
-*** Reformat sequence headers for =VITVI_PN40024_12x_v0_contigs_EMBL_r102=
-TODO
-
 *** Reformat sequence headers for =VITVI_PN40024_12x_v0_scaffolds_EMBL_r102=
 Launch script:
 #+begin_src sh
@@ -372,10 +369,12 @@ print a[1]": "sum; sumTot+=sum} END{print sumTot}'
 | chrUkn Vitis vinifera\vert{}PN40024\vert{}assembly12x.2 |    27389308 |
 | total                                                   |   486205130 |
 
-*** Format =VITVI_PN40024_12x_v0_chroms_URGI= for BLASTn
+*** Format =VITVI_PN40024_12x_v0_chroms_URGI= for BLAST
 TODO: change Vvin to VITVI
+Launch:
 #+begin_src sh
-../../src/format_Vvin-PN40024-12x-chr_blastn.bash
+echo "../../src/blast_format.bash VITVI_PN40024_12x_v0_chroms_URGI.fa.gz" \
+  | qsub -cwd -j y -V -N blast_format_VITVI_PN40024_12x_v0_chroms_URGI -q normal.q
 #+end_src
 
 *** Index =VITVI_PN40024_12x_v0_chroms_URGI= for BWA
@@ -490,6 +489,13 @@ Basic stats:
 #+begin_src sh
 zcat VITVI_PN40024_12x_v0_scaffolds_NCBI.fa.gz | md5sum # 20fa822ed5679519a20fe768c422a701
 zcat VITVI_PN40024_12x_v0_scaffolds_NCBI.fa.gz | grep -v ">" | md5sum # 9ddbb5761fe0e4356c7ef73410011ccb
+#+end_src
+
+*** Format =VITVI_PN40024_12x_v0_scaffolds_NCBI= for BLAST
+Launch:
+#+begin_src sh
+echo "../../src/blast_format.bash VITVI_PN40024_12x_v0_scaffolds_NCBI.fa.gz" \
+  | qsub -cwd -j y -V -N blast_format_VITVI_PN40024_12x_v0_scaffolds_NCBI -q normal.q
 #+end_src
 
 ** Creation of R/Bioconductor packages
