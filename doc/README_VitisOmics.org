@@ -170,8 +170,8 @@ cat scaffold_names | sed 1d | wc -l # 2061
 #+end_src
 
 See also the script =src/vitisomics.R= using R and Bioconductor.
-
-TODO: compare scaffold sequences of 12x one by one between URGI and NCBI to understand the discrepancy
+It confirms that the 12x scaffolds have the exact same sequence, whether they come from the URGI or the NCBI.
+Note however that the file from the NCBI allows to know easily on which chromosome a placed sequences is.
 
 Remarks concerning PN40024 at URGI:
 - the file =12x0_chr.agp.info= doesn't correspond to =12x0_chr.agp= (it doesn't even correspond to the description of a proper AGP file, as specified [[http://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/version-1.1/][here]]);
