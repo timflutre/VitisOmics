@@ -488,6 +488,13 @@ zcat VITVI_PN40024_12x_v0_scaffolds_NCBI.fa.gz | md5sum # 20fa822ed5679519a20fe7
 zcat VITVI_PN40024_12x_v0_scaffolds_NCBI.fa.gz | grep -v ">" | md5sum # 9ddbb5761fe0e4356c7ef73410011ccb
 #+end_src
 
+*** Format =VITVI_PN40024_8x_scaffolds_NCBI= for BLAST
+Launch:
+#+begin_src sh
+echo "../../src/blast_format.bash VITVI_PN40024_8x_scaffolds_NCBI.fa.gz" \
+  | qsub -cwd -j y -V -N blast_format_VITVI_PN40024_8x_scaffolds_NCBI -q normal.q
+#+end_src
+
 *** Format =VITVI_PN40024_12x_v0_scaffolds_NCBI= for BLAST
 Launch:
 #+begin_src sh
