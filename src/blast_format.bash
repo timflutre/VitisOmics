@@ -17,6 +17,11 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 
+if ! hash makeblastdb 2>/dev/null; then
+  echo "ERROR: can't find makeblastdb" 1>&2
+  exit 1
+fi
+
 inFaGzFile=$1
 
 if [ ! -f "${inFaGzFile}" ]; then
@@ -27,11 +32,12 @@ fi
 baseName=$(basename ${inFaGzFile} .fa.gz)
 
 zcat ${inFaGzFile} \
-  | formatdb \
-      -i stdin \
-      -l formatdb_${baseName}.log \
-      -p F \
-      -n ${baseName}
+  | makeblastdb \
+      -dbtype nucl \
+      -in - \
+      -title ${baseName} \
+      -out ${baseName} \
+      -logfile makeblastdb_${baseName}.log
 
 echo "done!"
 date
