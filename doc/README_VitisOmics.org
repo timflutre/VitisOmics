@@ -136,6 +136,14 @@ mkdir -p cribi; cd cribi/
 ../../src/download_cribi.bash
 #+end_src
 
+** Genoscope
+- http://www.genoscope.cns.fr/externe/Download/Projets/Projet_ML/data/
+
+#+begin_src sh
+mkdir -p genoscope; cd genoscope/
+../../src/download_genoscope.bash
+#+end_src
+
 * Results
 #+begin_src sh
 mkdir -p results; cd results/
