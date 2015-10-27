@@ -50,15 +50,17 @@ The person roles comply with R's guidelines (The R Journal Vol. 4/1, June 2012).
 - ...
 
 ** References
-As an introduction, the NCBI has open web pages about genome assembly:
+The NCBI has web pages about genome assembly:
 - [[http://www.ncbi.nlm.nih.gov/assembly/basics/][Assembly information]];
 - [[http://www.ncbi.nlm.nih.gov/assembly/model/][NCBI Genome Assembly Model]];
 - [[http://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/][AGP specification]].
 
-Then, the original article for grapevine is a must read:
+The original article for grapevine (PN40024) is a must read:
 - [[http://dx.doi.org/10.1038/nature06148][Jaillon, et al]]. The grapevine genome sequence suggests ancestral hexaploidization in major angiosperm phyla. Nature 449, 463-467 (2007).
 
-Also of interest about genome annotation:
+About genome annotations:
+- [[http://dx.doi.org/10.1186/1756-0500-5-213][Grimplet et al]]. Comparative analysis of grapevine whole-genome gene predictions, functional annotation, categorization and integration of the predicted gene sequences. BMC Research Notes 5, 213+ (2012).
+- [[http://dx.doi.org/10.1186/1471-2164-15-1077][Grimplet et al]]. The grapevine gene nomenclature system. BMC Genomics 15, 1077+ (2014).
 - [[http://dx.doi.org/10.1186/1471-2229-14-99][Vitulo et al]]. A deep survey of alternative splicing in grape reveals changes in the splicing machinery related to tissue, stress condition and genotype. BMC Plant Biology 14, 99+ (2014).
 
 * Data
