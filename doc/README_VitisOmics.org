@@ -439,7 +439,7 @@ TODO: test [[http://crossmap.sourceforge.net/][CrossMap]]
 mkdir -p ncbi; cd ncbi/
 #+end_src
 
-*** Reformat sequence headers for =VITVI_PN40024_8x_chroms_NCBI=
+*** Reformat sequence headers for =VITVI_PN40024_8x_scaffolds_NCBI=
 Launch script:
 #+begin_src sh
 ls ../../data/ncbi/ARCHIVE/BUILD.1.1/CHRS/vvi_ref_chr*.fa.gz | grep -v -E "Pltd" | while read f; do ln -s $f .; done
@@ -501,6 +501,63 @@ Launch:
 echo "../../src/blast_format.bash VITVI_PN40024_12x_v0_scaffolds_NCBI.fa.gz" \
   | qsub -cwd -j y -V -N blast_format_VITVI_PN40024_12x_v0_scaffolds_NCBI -q normal.q
 #+end_src
+
+*** Convert =gbs= files to =GFF3=
+Check that there is one =LOCUS= entry per scaffold:
+#+begin_src sh
+ls ../../data/ncbi/ARCHIVE/BUILD.1.1/CHRS/vvi_ref_chr*.gbs.gz | grep -v "Pltd" | while read f; do zcat $f; done | grep -c "LOCUS" # 3514
+#+end_src
+
+Use the [[https://github.com/bioperl/bioperl-live/blob/master/scripts/Bio-DB-GFF/bp_genbank2gff3.pl][bp_genbank2gff3.pl]] script from [[http://www.bioperl.org/wiki/Main_Page][BioPerl]]:
+#+begin_src sh
+zcat ../../../data/ncbi/ARCHIVE/BUILD.1.1/CHRS/vvi_ref_chr1.gbs.gz | bp_genbank2gff3.pl -in stdin -out stdout | gzip > vvi_ref_chr1.gff3.gz
+# Error::throw
+# Bio::Root::Root::throw /usr/local/share/perl5/Bio/Root/Root.pm:449
+# Bio::SeqFeature::Tools::Unflattener::unflatten_seq /usr/local/share/perl5/Bio/SeqFeature/Tools/Unflattener.pm:1636
+# main::unflatten_seq /usr/local/bin/bp_genbank2gff3.pl:1030
+# /usr/local/bin/bp_genbank2gff3.pl:504
+#+end_src
+
+Use the [[https://github.com/jorvis/biocode/blob/master/gff/convert_genbank_to_gff3.py][convert_genbank_to_gff3.py]] script from [[https://github.com/jorvis/biocode][biocode]]:
+#+begin_src sh
+zcat ../../data/ncbi/ARCHIVE/BUILD.1.1/CHRS/vvi_ref_chr1.gbs.gz > vvi_ref_8x_chr1.gbs
+convert_genbank_to_gff3.py -i vvi_ref_8x_chr1.gbs -o vvi_ref_8x_chr1.gff3 --no_fasta
+#   File "convert_genbank_to_gff3.py", line 196, in <module> main()
+#   File "convert_genbank_to_gff3.py", line 95, in main
+#     locus_tag = feat.qualifiers['locus_tag'][0]
+# KeyError: 'locus_tag'
+#+end_src
+
+Additional remarks:
+- it is written in Python;
+- it uses Biopython, but also custom libraries;
+- it is on GitHub;
+- it doesn't handle gzipped file as input;
+- it skips features not from type gene, mRNA, tRNA, rRNA and CDS.
+
+Use the =GFF= library from [[https://github.com/chapmanb/bcbb/tree/master/gff][BCBio]] (not yet integrated into Biopython) as explained [[http://biopython.org/wiki/GFF_Parsing#Converting_other_formats_to_GFF3][here]]:
+#+begin_src sh
+zcat ../../data/ncbi/ARCHIVE/BUILD.1.1/CHRS/vvi_ref_chr1.gbs.gz > vvi_ref_8x_chr1.gbs
+genbank_to_gff.py vvi_ref_8x_chr1.gbs
+#+end_src
+
+Remarks:
+- the =sequence-region= are interspersed in the output file;
+- what does the first data line correspond to, with source =annotation=?
+- the source is present in the output as a feature;
+- why is =feature = added in the 2nd field?
+- why is it written =db_xref= instead of =Dbxref= (from official specification)?
+- same for =note= instead of =Note=?
+- exons seem to have 2nd field as =feature mRNA=
+
+TODO: Use gffutils ([[http://pythonhosted.org/gffutils/contents.html][doc]], [[https://github.com/daler/gffutils][code]])
+
+TODO: Use a custom script based on [[http://www.biopython.org/wiki/SeqIO][Biopython]] only:
+#+begin_src sh
+genbank2gff3.py -i ../../data/ncbi/ARCHIVE/BUILD.1.1/CHRS/vvi_ref_chr1.gbs.gz -o vvi_ref_8x_chr1.gff.gz -t 29760 -g "NCBI 1.1" -s Genbank
+#+end_src
+
+TODO: check for "pseudo" but empty
 
 ** Creation of R/Bioconductor packages
 - http://www.bioconductor.org/
