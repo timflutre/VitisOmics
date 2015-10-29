@@ -619,9 +619,7 @@ I hence sent the package to the Bioconductor team (Hervé Pagès, maintainer of 
 The 12Xv2 package is now available [[http://bioconductor.org/packages/release/data/annotation/html/BSgenome.Vvinifera.URGI.IGGP12Xv2.html][here]], and it also appears in [[http://bioconductor.org/packages/release/BiocViews.html#___Organism][this]] list.
 
 *** BSgenome IGGP12Xv0 package
-http://bioconductor.org/packages/release/bioc/html/BSgenome.html
-
-Retrieve the sequence data from URGI:
+Similarly as for the 12Xv2 package, retrieve the sequence data from URGI:
 #+begin_src sh
 cd results/
 mkdir -p make_BSgenome_IGGP12Xv0
@@ -629,7 +627,38 @@ cd make_BSgenome_IGGP12Xv0/
 ln -s ../../data/urgi/VV_chr12x.fsa.gz .
 #+end_src
 
-TODO: Prepare the seed file (=IGGP12Xv0_seed.txt=) by editing the one used for =IGGP12Xv2=.
+Split into one chromosome per file (headers as =chr1=, =chr1_random=, etc):
+#+begin_src bash
+zcat VV_chr12x.fsa.gz | awk 'BEGIN{RS=">"} {if(NF==0)next; split($0,a,"\n"); split(a[1],b," "); print b[length(b)]; print ">"b[length(b)] > b[length(b)]".fa"; for(i=2;i<length(a);++i){print a[i] >> b[length(b)]".fa"}}'
+gzip chr*.fa
+#+end_src
+
+Replace =chrUn= by =chrUkn= to be compatible with the 12Xv2:
+#+begin_src sh
+zcat chrUn.fa.gz | sed 's/chrUn/chrUkn/' | gzip > chrUkn.fa.gz
+diff <(zcat chrUn.fa.gz) <(zcat chrUkn.fa.gz) # check
+rm chrUn.fa.gz
+#+end_src
+
+Prepare the seed file (=IGGP12Xv0_seed.txt=) using the one for =IGGP12Xv2= as a template.
+
+Forge the target package from the seed file:
+#+begin_src sh
+echo "date; echo \"library(BSgenome); forgeBSgenomeDataPkg(\\\"IGGP12Xv0_seed.txt\\\"); sessionInfo()\" | R --vanilla; date" | qsub -cwd -j y -V -N forge_BSgenome -q normal.q
+#+end_src
+
+Build the package and check it:
+#+begin_src sh
+echo "date; R CMD build BSgenome.Vvinifera.URGI.IGGP12Xv0; date" | qsub -cwd -j y -V -N build_BSgenome -q normal.q
+echo "date; R CMD check BSgenome.Vvinifera.URGI.IGGP12Xv0_0.1.tar.gz; date" | qsub -cwd -j y -V -N check_BSgenome -q normal.q
+#+end_src
+
+The target package is now ready to be installed:
+#+begin_src sh
+R CMD INSTALL BSgenome.Vvinifera.URGI.IGGP12Xv0_0.1.tar.gz
+#+end_src
+
+TODO: send the package to the Bioconductor team
 
 *** TxDb IGGP12Xv0 package from NCBI annotations
 http://www.bioconductor.org/packages/release/bioc/html/GenomicFeatures.html
