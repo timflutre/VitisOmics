@@ -36,6 +36,7 @@ wget --timestamping -O 12x0_scaffolds.lg https://urgi.versailles.inra.fr/content
 echo "12X.2 version of the grapevine reference genome sequence from The French-Italian Public Consortium (PN40024)"
 wget --timestamping https://urgi.versailles.inra.fr/download/vitis/12Xv2_grapevine_genome_assembly.fa.gz
 wget --timestamping https://urgi.versailles.inra.fr/content/download/3044/26115/file/golden_path_V2_111113_allChr.csv
+wget --timestamping https://urgi.versailles.inra.fr/content/download/4702/36526/file/vitis12XV2_final.agp
 wget --timestamping https://urgi.versailles.inra.fr/content/download/3043/26111/file/chr_size_V2.txt
 
 echo "V0 annotation of the 12X.0 genome assembly (Genoscope)"
