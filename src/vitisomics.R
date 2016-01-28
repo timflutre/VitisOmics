@@ -1,5 +1,5 @@
 ## Aim: compare original files from URGI and NCBI
-## Copyright (C) 2015 Institut National de la Recherche Agronomique
+## Copyright (C) 2015-2016 Institut National de la Recherche Agronomique
 ## License: GPL-3+
 ## Persons: Timothée Flutre [cre,aut]
 ## Versioning: https://github.com/timflutre/VitisOmics/src
@@ -70,3 +70,49 @@ for(i in 1:nrow(fa.head)){
     break
   }
 } ## all good!
+
+## ---------------------------------------------------------------------------
+## task: convert SNP data of the 18K Illumina chip from xls to csv.gz
+
+options(java.parameters="-Xmx1024m")
+library(XLConnect)
+
+in.file <- "data/urgi/GrapeReSeq_SNP Table_all_180413.xlsx"
+
+snp.table <- readWorksheetFromFile(file=in.file, sheet="SNP_TABLE")
+## takes ~ 10 seconds
+
+str(snp.table) # 18071 rows and 41 columns
+unique(snp.table$Chr) # 34
+unique(snp.table$Aux) # explained in the other sheet named "READ ME"
+
+readme <- readWorksheetFromFile(file=in.file, sheet="READ ME")
+
+out.file <- "results/urgi/GrapeReSeq_SNP_table_180413.txt.gz"
+
+## write the content of the "READ ME" sheet as comments
+txt <- paste0("# ", gsub("\\.", " ", colnames(readme)[1]))
+cat(txt, file=gzfile(out.file), append=FALSE)
+for(i in 1:nrow(readme)){
+  txt <- paste0("# ", readme[i,])
+  cat(txt, file=gzfile(out.file), append=TRUE)
+}
+
+## append the content of the "SNP_TABLE" sheet
+write.table(x=snp.table, file=gzfile(out.file), append=TRUE, quote=FALSE,
+            sep="\t", row.names=FALSE, col.names=TRUE)
+## ignore the warning
+
+in.file <- "data/urgi/GrapeReSeq_Illumina_20K_SNP_chip.xls"
+
+dat <- readWorksheetFromFile(file=in.file, sheet="Feuil1", startRow=18)
+
+str(dat) # 20000 rows and 20 columns
+unique(dat$Genome_Build_Version) # 12 and 12.1 ?!
+unique(dat$Chromosome) # 34
+unique(dat$Source) # IGA-MAF0.1 IGA-MAF0.05 ICVV URGI
+length(unique(dat$Ilmn_Id)) # 20000
+
+out.file <- "results/urgi/GrapeReSeq_Illumina_20K_SNP_chip.txt.gz"
+write.table(x=dat, file=gzfile(out.file), quote=FALSE, sep="\t",
+            row.names=FALSE, col.names=TRUE)

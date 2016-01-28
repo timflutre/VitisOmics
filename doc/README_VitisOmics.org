@@ -444,8 +444,10 @@ Another [[https://github.com/SouthGreenPlatform/utils/tree/master/transpose_anno
 
 TODO: test [[http://crossmap.sourceforge.net/][CrossMap]]
 
-*** Convert SNP data of the 18K Illumina chip from xls to csv
-TODO
+*** Convert SNP data of the 18K Illumina chip from =xls= to =txt.gz=
+On the command-line, working with tabulated files is much easier, and they should be compressed (e.g. with GZIP).
+
+See the corresponding task in the script =src/vitisomics.R=.
 
 ** Manipulations of files from NCBI
 #+begin_src sh
