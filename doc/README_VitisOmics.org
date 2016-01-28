@@ -82,7 +82,7 @@ Remarks:
 - when needed, the script decompresses zip files and compress them again but with gzip instead;
 - the AGP file for the PN40024 8x assembly is not available at URGI's web site.
 
-At the bottom of the [[https://urgi.versailles.inra.fr/Species/Vitis][page]], one can find the following assemblies summary.
+At the bottom of [[https://urgi.versailles.inra.fr/Species/Vitis][this page]], one can find the following assemblies summary.
 
 12x.2 assembly:
 - contigs: 14642
@@ -443,6 +443,9 @@ After contacting URGI, they told me they were working on it (October 2015).
 Another [[https://github.com/SouthGreenPlatform/utils/tree/master/transpose_annotation][script]] was developped by G. Sarah, but it suffers from several [[https://github.com/SouthGreenPlatform/utils/issues/1][issues]].
 
 TODO: test [[http://crossmap.sourceforge.net/][CrossMap]]
+
+*** Convert SNP data of the 18K Illumina chip from xls to csv
+TODO
 
 ** Manipulations of files from NCBI
 #+begin_src sh

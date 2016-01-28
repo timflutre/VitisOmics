@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright (C) 2015 Institut National de la Recherche Agronomique (INRA)
+# Copyright (C) 2015-2016 Institut National de la Recherche Agronomique (INRA)
 # License: GPL-3+
 # Author: Timothée Flutre
 
@@ -17,21 +17,39 @@ fi
 if [ ! -f VV_chr12x.fsa.gz ]; then
   wget --timestamping https://urgi.versailles.inra.fr/download/vitis/VV_chr12x.fsa.zip
 fi
-ls *.zip | while read f; do
-  if [ ! -f "${prefix}.gz" ]; then
-    unzip $f
-    prefix=$(echo $f | sed 's/.zip//')
-    gzip $prefix
-    rm -f $f
-  fi
-done
+if [ $(ls -1 *.zip 2>/dev/null | wc -l) -ne 0 ]; then
+  ls *.zip | while read f; do
+    if [ ! -f "${prefix}.gz" ]; then
+      unzip $f
+      prefix=$(echo $f | sed 's/.zip//')
+      gzip $prefix
+      rm -f $f
+    fi
+  done
+fi
 
 echo "12X.0 \"golden path\" files for chromosome assembly (2009_12_04)"
-wget --timestamping -O 12x0_chr.agp https://urgi.versailles.inra.fr/content/download/1028/8244/file/chr.agp
-wget --timestamping -O 12x0_chrUn.agp https://urgi.versailles.inra.fr/content/download/1029/8248/file/chrUn.agp
-wget --timestamping -O 12x0_chr.agp.info https://urgi.versailles.inra.fr/content/download/2149/19329/file/chr.agp.info
-wget --timestamping -O 12x0_chr.lg https://urgi.versailles.inra.fr/content/download/2150/19333/file/chr.lg
-wget --timestamping -O 12x0_scaffolds.lg https://urgi.versailles.inra.fr/content/download/1093/8684/file/scaffolds.lg
+## note: wget doesn't allow "--timestamping" and "-O" together
+if [ ! -f 12x0_chr.agp ]; then
+  wget --timestamping https://urgi.versailles.inra.fr/content/download/1028/8244/file/chr.agp
+  mv chr.agp 12x0_chr.agp
+fi
+if [ ! -f 12x0_chrUn.agp ]; then
+  wget --timestamping https://urgi.versailles.inra.fr/content/download/1029/8248/file/chrUn.agp
+  mv chrUn.agp 12x0_chrUn.agp
+fi
+if [ ! -f 12x0_chr.agp.info ]; then
+  wget --timestamping https://urgi.versailles.inra.fr/content/download/2149/19329/file/chr.agp.info
+  mv chr.agp.info 12x0_chr.agp.info
+fi
+if [ ! -f 12x0_chr.lg ]; then
+  wget --timestamping https://urgi.versailles.inra.fr/content/download/2150/19333/file/chr.lg
+  mv chr.lg 12x0_chr.lg
+fi
+if [ ! -f 12x0_scaffolds.lg ]; then
+  wget --timestamping https://urgi.versailles.inra.fr/content/download/1093/8684/file/scaffolds.lg
+  mv scaffolds.lg 12x0_scaffolds.lg
+fi
 
 echo "12X.2 version of the grapevine reference genome sequence from The French-Italian Public Consortium (PN40024)"
 wget --timestamping https://urgi.versailles.inra.fr/download/vitis/12Xv2_grapevine_genome_assembly.fa.gz
@@ -77,3 +95,8 @@ if [ ! -f VV_8X_embl_98_WGS_contigs.fsa.gz ]; then
   gzip VV_8X_embl_98_WGS_contigs.fsa
   rm -f VV_8X_embl_98_WGS_contigs.fsa.zip
 fi
+
+echo "Illumina Infinium chip (GrapeReSeq, 18K)"
+wget --timestamping https://urgi.versailles.inra.fr/content/download/2688/23435/file/GrapeReSeq_SNP%20Table_all_180413.xlsx
+wget --timestamping https://urgi.versailles.inra.fr/content/download/2689/23439/file/GrapeReSeq_CF-EPGV-v2b.egt
+wget --timestamping https://urgi.versailles.inra.fr/content/download/2465/21587/file/GrapeReSeq_Illumina_20K_SNP_chip.xls
