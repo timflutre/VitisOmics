@@ -72,7 +72,7 @@ for(i in 1:nrow(fa.head)){
 } ## all good!
 
 ## ---------------------------------------------------------------------------
-## task: convert SNP data of the 18K Illumina chip from xls to csv.gz
+## task: convert SNP data of the 18K Illumina array from xls to csv.gz
 
 options(java.parameters="-Xmx1024m")
 library(XLConnect)
@@ -116,3 +116,46 @@ length(unique(dat$Ilmn_Id)) # 20000
 out.file <- "results/urgi/GrapeReSeq_Illumina_20K_SNP_chip.txt.gz"
 write.table(x=dat, file=gzfile(out.file), quote=FALSE, sep="\t",
             row.names=FALSE, col.names=TRUE)
+
+## ---------------------------------------------------------------------------
+## task: extract Illumina array SNP probes into a fasta file
+
+library(Biostrings)
+
+f <- "results/urgi/GrapeReSeq_SNP_table_180413.txt.gz"
+snp.table <- read.table(f, header=TRUE, sep="\t", stringsAsFactors=FALSE)
+
+f <- "results/urgi/GrapeReSeq_Illumina_20K_SNP_chip.txt.gz"
+dat <- read.table(f, header=TRUE, sep="\t", stringsAsFactors=FALSE)
+
+## "dat" contains too many sequences
+nrow(snp.table) # 18071
+nrow(dat) # 20000
+
+sum(snp.table$Name %in% dat$Locus_Name) # 18071
+dat <- dat[dat$Locus_Name %in% snp.table$Name,]
+dim(dat) # 18071
+
+## make the sequences keeping the first allele
+tmp <- head(dat)
+tmp$Sequence[1]
+strsplit(tmp$Sequence[1], "\\[|\\/|\\]")[[1]]
+paste(strsplit(tmp$Sequence[1], "\\[|\\/|\\]")[[1]][c(1,2,4)], collapse="")
+sapply(strsplit(tmp$Sequence[1:3], "\\[|\\/|\\]"), function(x){
+  paste(x[c(1,2,4)], collapse="")
+})
+dat$Sequence.valid <- sapply(strsplit(dat$Sequence, "\\[|\\/|\\]"),
+                             function(x){
+                               paste(x[c(1,2,4)], collapse="")
+                             })
+
+## extract both alleles and their location within the sequences
+dat$allele1 <- sapply(strsplit(dat$Sequence, "\\[|\\/|\\]"), `[`, 2)
+dat$allele2 <- sapply(strsplit(dat$Sequence, "\\[|\\/|\\]"), `[`, 3)
+dat$snp.coord <- sapply(strsplit(dat$Sequence, "\\[.*"), nchar) + 1
+
+## save in a fasta file
+seq.set <- DNAStringSet(x=setNames(dat$Sequence.valid,
+                                   dat$Locus_Name))
+out.file <- "results/urgi/GrapeReSeq_Illumina_18K_SNP_probes.fa.gz"
+writeXStringSet(seq.set, out.file, compress=TRUE, format="fasta", width=60)
