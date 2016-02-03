@@ -380,11 +380,10 @@ print a[1]": "sum; sumTot+=sum} END{print sumTot}'
 | total                                                   |   486205130 |
 
 *** Format =VITVI_PN40024_12x_v0_chroms_URGI= for BLAST
-TODO: change Vvin to VITVI
 Launch:
 #+begin_src sh
 echo "../../src/blast_format.bash VITVI_PN40024_12x_v0_chroms_URGI.fa.gz" \
-  | qsub -cwd -j y -V -N blast_format_VITVI_PN40024_12x_v0_chroms_URGI -q normal.q
+  | qsub -cwd -j y -V -q normal.q -N blast_format_VITVI_PN40024_12x_v0_chroms_URGI
 #+end_src
 
 *** Index =VITVI_PN40024_12x_v0_chroms_URGI= for BWA
@@ -444,14 +443,26 @@ Another [[https://github.com/SouthGreenPlatform/utils/tree/master/transpose_anno
 
 TODO: test [[http://crossmap.sourceforge.net/][CrossMap]]
 
-*** Convert SNP data of the 18K Illumina chip from =xls= to =txt.gz=
+*** Convert SNP data of the 18K Illumina array from =xls= to =txt.gz=
 On the command-line, working with tabulated files is much easier, and they should be compressed (e.g. with =gzip=).
-The 18071 probe sequences also need to be saved in a fasta file.
+The 18071 probe sequences also need to be saved in two fasta files, one for the 13562 "vinifera" SNPs and one for the 4509 "species" SNPs.
 
 See the corresponding task in the script =src/vitisomics.R=.
 
-*** Map Illumina probes on several PN40024 assemblies
-TODO
+Note that, as of January 2016, even though two articles are published which used this genotyping array, the data are not (yet?) part of [[http://www.ncbi.nlm.nih.gov/projects/SNP/][dbSNP]], unfortunately.
+Therefore, no unambiguous SNP identifiers exist which can be used across studies and genome assemblies.
+
+*** Align Illumina probes on PN40024 assemblies
+Requires the =VITVI_PN40024_12x_v0_chroms_URGI.fa.gz= bank to be formatted for BLAST (see above).
+#+begin_src sh
+echo "zcat GrapeReSeq_Illumina_18K_SNP_vinifera_probes.fa.gz | blastn -query - -task megablast -db VITVI_PN40024_12x_v0_chroms_URGI -out /dev/stdout -outfmt 6 | gzip > Ill18Kprobes-vinifera_12x0-chroms_megablast.txt.gz" | qsub -cwd -j y -V -q normal.q -N blastn-megablast_Ill18Kprobes-vinifera_12x0-chroms
+#+end_src
+
+The alignments are analyzed in the corresponding task in the script =src/vitisomics.R=.
+
+Among the 13562 "vinifera" probes, 33 are not aligned on the 12x0 assembly of the PN40024 genome, 24 are aligned on different chromosomes than indicated (mostly plastid genomes), and all the others look fine.
+
+TODO: when a SNP is named, e.g., =chr1_27655_C_T=, does the order "C then T" has a meaning? Is "C" the minor allele, or reciprocally? Or is it the allele present in the PN400 12x0 assembly?
 
 ** Manipulations of files from NCBI
 #+begin_src sh

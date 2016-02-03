@@ -39,7 +39,7 @@ str(agp.gap) # 16063 rows
 ## ---------------------------------------------------------------------------
 ## task: compare URGI and NCBI fasta files for 12x scaffolds
 
-library(Biostrings) # http://bioconductor.org
+library(Biostrings)
 
 urgi <-
   readDNAStringSet(filepath="results/urgi/VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz",
@@ -118,7 +118,7 @@ write.table(x=dat, file=gzfile(out.file), quote=FALSE, sep="\t",
             row.names=FALSE, col.names=TRUE)
 
 ## ---------------------------------------------------------------------------
-## task: extract Illumina array SNP probes into a fasta file
+## task: extract Illumina SNP array probes into fasta files
 
 library(Biostrings)
 
@@ -127,6 +127,9 @@ snp.table <- read.table(f, header=TRUE, sep="\t", stringsAsFactors=FALSE)
 
 f <- "results/urgi/GrapeReSeq_Illumina_20K_SNP_chip.txt.gz"
 dat <- read.table(f, header=TRUE, sep="\t", stringsAsFactors=FALSE)
+table(dat$Source)
+## ICVV IGA-MAF0.05  IGA-MAF0.1  URGI
+##  205        1470       13347  4978
 
 ## "dat" contains too many sequences
 nrow(snp.table) # 18071
@@ -135,27 +138,89 @@ nrow(dat) # 20000
 sum(snp.table$Name %in% dat$Locus_Name) # 18071
 dat <- dat[dat$Locus_Name %in% snp.table$Name,]
 dim(dat) # 18071
+table(dat$Source)
+## ICVV IGA-MAF0.05  IGA-MAF0.1  URGI
+##  187        1335       12040  4509
 
 ## make the sequences keeping the first allele
 tmp <- head(dat)
 tmp$Sequence[1]
 strsplit(tmp$Sequence[1], "\\[|\\/|\\]")[[1]]
 paste(strsplit(tmp$Sequence[1], "\\[|\\/|\\]")[[1]][c(1,2,4)], collapse="")
-sapply(strsplit(tmp$Sequence[1:3], "\\[|\\/|\\]"), function(x){
-  paste(x[c(1,2,4)], collapse="")
-})
 dat$Sequence.valid <- sapply(strsplit(dat$Sequence, "\\[|\\/|\\]"),
                              function(x){
                                paste(x[c(1,2,4)], collapse="")
                              })
 
-## extract both alleles and their location within the sequences
-dat$allele1 <- sapply(strsplit(dat$Sequence, "\\[|\\/|\\]"), `[`, 2)
-dat$allele2 <- sapply(strsplit(dat$Sequence, "\\[|\\/|\\]"), `[`, 3)
-dat$snp.coord <- sapply(strsplit(dat$Sequence, "\\[.*"), nchar) + 1
-
-## save in a fasta file
+## save valid sequences in fasta files
 seq.set <- DNAStringSet(x=setNames(dat$Sequence.valid,
                                    dat$Locus_Name))
 out.file <- "results/urgi/GrapeReSeq_Illumina_18K_SNP_probes.fa.gz"
 writeXStringSet(seq.set, out.file, compress=TRUE, format="fasta", width=60)
+
+out.file <- "results/urgi/GrapeReSeq_Illumina_18K_SNP_vinifera_probes.fa.gz"
+writeXStringSet(seq.set[dat$Source != "URGI"],
+                out.file, compress=TRUE, format="fasta", width=60)
+
+out.file <- "results/urgi/GrapeReSeq_Illumina_18K_SNP_species_probes.fa.gz"
+writeXStringSet(seq.set[dat$Source == "URGI"],
+                out.file, compress=TRUE, format="fasta", width=60)
+
+## extract both alleles and their location within the sequences
+dat$allele1 <- sapply(strsplit(dat$Sequence, "\\[|\\/|\\]"), `[`, 2)
+dat$allele2 <- sapply(strsplit(dat$Sequence, "\\[|\\/|\\]"), `[`, 3)
+dat$snp.coord.intra <- sapply(strsplit(dat$Sequence, "\\[.*"), nchar) + 1
+
+## save information about the 18K SNPs in a file
+out.file <- "results/urgi/GrapeReSeq_Illumina_18K_SNP_array.txt.gz"
+write.table(dat, out.file, quote=FALSE, sep="\t", row.names=FALSE)
+
+## ---------------------------------------------------------------------------
+## task: check the coordinates of the Illumina SNP array probes
+
+## load alignments of "vinifera" probes on 12x0 with megablast
+f <- "results/urgi/Ill18Kprobes-vinifera_12x0-chroms_megablast.txt.gz"
+alns <- read.table(f, col.names=c("qseqid", "sseqid", "pident", "length",
+                                  "mismatch", "gapopen", "qstart", "qend",
+                                  "sstart", "send", "evalue", "bitscore"),
+                   stringsAsFactors=FALSE)
+nrow(alns) # 15357
+
+## some probes have multiple alignments (keep the best)
+anyDuplicated(alns$qseqid) # 40
+alns <- alns[! duplicated(alns$qseqid),]
+summary(alns$pident) # min=89 q1=99 med=99 mean=99 q3=100 max=100
+summary(alns$length) # min=62 q1=101 med=101 mean=102 q3=101 max=628
+
+## load info about "vinifera" probes
+f <- "results/urgi/GrapeReSeq_Illumina_18K_SNP_array.txt.gz"
+dat <- read.table(f, header=TRUE, sep="\t", stringsAsFactors=FALSE)
+dat <- dat[dat$Source != "URGI",]
+nrow(dat) # 13562
+summary(sapply(dat$Sequence.valid, nchar)) # min=84 q1=101 med=101 mean=102 q3=101 max=628
+
+## some probes don't have any alignment
+sum(! dat$Locus_Name %in% alns$qseqid) # 33
+
+## check alignment coordinates
+alns <- alns[order(alns$qseqid),]
+dat2 <- dat[dat$Locus_Name %in% alns$qseqid,]
+dat2 <- dat2[order(dat2$Locus_Name),]
+dat2$aln.sseqid <- alns$sseqid
+dat2$aln.sstart <- alns$sstart
+dat2$aln.send <- alns$send
+dat2$aln.pident <- alns$pident
+dat2$aln.len <- alns$length
+
+## some probes are aligned on different chromosomes than indicated
+## most of them are said to belong to plastid genomes
+## they were all designed by the ICVV
+sum(dat2$aln.sseqid != dat2$Chromosome) # 24
+dat2[dat2$aln.sseqid != dat2$Chromosome, -grep("Sequence",colnames(dat2))]
+
+## among the probes aligned on the indicated chromosome, the indicated SNP
+## coordinate is inside the alignment boundaries for all of them
+sum(dat2[dat2$aln.sseqid == dat2$Chromosome, "aln.sstart"] >=
+    dat2[dat2$aln.sseqid == dat2$Chromosome, "Coordinate"] ||
+    dat2[dat2$aln.sseqid == dat2$Chromosome, "aln.send"] <=
+    dat2[dat2$aln.sseqid == dat2$Chromosome, "Coordinate"]) # 0
