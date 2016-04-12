@@ -72,7 +72,7 @@ for(i in 1:nrow(fa.head)){
 } ## all good!
 
 ## ---------------------------------------------------------------------------
-## task: convert SNP data of the 18K Illumina array from xls to csv.gz
+## task: convert SNP data of the 18K Illumina array from xls to txt.gz
 
 options(java.parameters="-Xmx1024m")
 library(XLConnect)
@@ -173,7 +173,7 @@ dat$snp.coord.intra <- sapply(strsplit(dat$Sequence, "\\[.*"), nchar) + 1
 
 ## save information about the 18K SNPs in a file
 out.file <- "results/urgi/GrapeReSeq_Illumina_18K_SNP_array.txt.gz"
-write.table(dat, out.file, quote=FALSE, sep="\t", row.names=FALSE)
+write.table(dat, gzfile(out.file), quote=FALSE, sep="\t", row.names=FALSE)
 
 ## ---------------------------------------------------------------------------
 ## task: check the coordinates of the Illumina SNP array probes

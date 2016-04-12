@@ -105,6 +105,12 @@ N. Choisne from URGI (personal communication, 13/10/2015):
 - "supercontig" is a synonym of "scaffold";
 - "ultracontig": one level above supercontigs; localized and orientated according to data from BAC libraries.
 
+N. Choisne from URGI on the 18K SNP chip (personal communication, 09/02/2016): let's take an example
+- identifier =chr1_27655_C_T=;
+- probe sequence =TTGTCTACGAAGTTTGACAATTTCTATTTTTCATAAGTTTACACAAATTA[T/C]TGAACAGTGAGTTAGTGACCATAATCAATGATATGTGGTTTAATGTCACT=;
+- SNPs on the 18K Illumina Infinium microarray are named so that the first allele (here, =C=) corresponds to the reference (PN40024 12x.0) and the second allele (here, =T=) to the variant (almost sure for the "species" SNPs and should also be the case for the "vinifera" SNPs);
+- in the sequence, the fact that the =T= comes before the =C= only reflects the fact that the chip is an Infinium II, with 2 beads, only allowing loci =A/G=, =A/C=, =T/G=, =T/C=, whereas the Infinium I only allows =A/T= et =C/G=.
+
 ** NCBI
 - http://www.ncbi.nlm.nih.gov/genome/401
 - ftp://ftp.ncbi.nlm.nih.gov/genomes/Vitis_vinifera/
@@ -137,6 +143,7 @@ mkdir -p cribi; cd cribi/
 #+end_src
 
 ** Genoscope
+- http://www.genoscope.cns.fr/spip/Vitis-vinifera-whole-genome.html
 - http://www.genoscope.cns.fr/externe/Download/Projets/Projet_ML/data/
 
 #+begin_src sh
@@ -195,6 +202,36 @@ For its build 1.1 (corresponding to the 8x sequences of the PN40024 variety), th
 However, all unlocalized and unplaced scaffolds are gathered in a single file =chrUn=.
 This is not the case at URGI which has unlocalized scaffolds in files as =chr3_random= and a =chrUn_random= file with all unplaced scaffolds (and only them).
 Unfortunately, the NCBI has the annotation of the 8x (in the GenBank format), but the URGI hasn't.
+
+** Comparisons of annotations
+The Genoscope annotated the 8x and 12x.v0 assemblies with the Gaze software:
+#+begin_src sh
+zcat 8X/annotation/Vitis_vinifera_annotation_v1.gff.gz | cut -f2 | sort | uniq -c # 234890 Gaze_filter
+zcat 12X/annotation/Vitis_vinifera_annotation.gff.gz | cut -f2 | sort | uniq -c # 245272 Gaze
+#+end_src
+
+Both GFF files contain several types of annotations:
+#+begin_src sh
+zcat 8X/annotation/Vitis_vinifera_annotation_v1.gff.gz | cut -f3 | sort | uniq -c
+zcat 12X/annotation/Vitis_vinifera_annotation.gff.gz | cut -f3 | sort | uniq -c
+#+end_src
+
+| assembly |  gene |  mRNA |   UTR |    CDS |
+|----------+-------+-------+-------+--------|
+| 8x       | 30434 | 30434 | 24671 | 149351 |
+| 12x.0    | 26346 | 26346 | 35815 | 156765 |
+
+For both 8x and 12x.0 assemblies, gene identifiers all start with =GSVIVG=, and by =GSVIVT= for mRNA:
+#+begin_src sh
+zcat 8X/annotation/Vitis_vinifera_annotation_v1.gff.gz | awk -F"\t" '{if($3=="gene"){split($9,a," "); print substr(a[2],1,6)}}' | sort | uniq -c
+zcat 8X/annotation/Vitis_vinifera_annotation_v1.gff.gz | awk -F"\t" '{if($3=="mRNA"){split($9,a," "); print substr(a[2],1,6)}}' | sort | uniq -c
+zcat 12X/annotation/Vitis_vinifera_annotation.gff.gz | awk -F"\t" '{if($3=="gene"){split($9,a," "); print substr(a[2],1,6)}}' | sort | uniq -c
+zcat 12X/annotation/Vitis_vinifera_annotation.gff.gz | awk -F"\t" '{if($3=="mRNA"){split($9,a," "); print substr(a[2],1,6)}}' | sort | uniq -c
+#+end_src
+
+The NCBI annotated the 8x and 12x.0 assemblies with the GNOMON software.
+
+TODO: convert NCBI annotation files from =gbs= into =gff3= (see work in progress below)
 
 ** Manipulations of files from URGI
 #+begin_src sh
@@ -432,12 +469,14 @@ echo "../../src/bowtie2_index_VITVI_PN40024_12x_v2_chroms_URGI_for_Tassel.bash" 
   | qsub -cwd -j y -V -N bowtie2_build_VITVI_PN40024_12x_v2_chroms_URGI_for_Tassel -q normal.q
 #+end_src
 
-*** Translate CRIBI annotations from 12X.0 to 12X.2
-Requirement: use or write a script taking as input the 12X.0 GFF3 file as well as the 12.0-12.2 AGP file, and returns as output the 12X.2 GFF3 file
+*** Translate CRIBI annotations from 12x.0 to 12x.2
+Requirement: use or write a script taking as input the 12x.0 GFF3 file as well as the 12.0-12.2 AGP file, and returns as output the 12x.2 GFF3 file
 
 The URGI provides the following AGP file: =golden_path_V2_111113_allChr.csv=.
 Unfortunately, after looking at the official [[https://www.ncbi.nlm.nih.gov/assembly/agp/AGP_Specification/][specification]] of the AGP format, the URGI file doesn't seem to be valid, neither for version 1.1, nor 2.2.
 After contacting URGI, they told me they were working on it (October 2015).
+
+TODO: look at the [[https://urgi.versailles.inra.fr/Species/Vitis/Annotations][annotations]] from CRIBI on 12x.0 transposed to 12x.2 by URGI
 
 Another [[https://github.com/SouthGreenPlatform/utils/tree/master/transpose_annotation][script]] was developped by G. Sarah, but it suffers from several [[https://github.com/SouthGreenPlatform/utils/issues/1][issues]].
 
@@ -449,7 +488,7 @@ The 18071 probe sequences also need to be saved in two fasta files, one for the 
 
 See the corresponding task in the script =src/vitisomics.R=.
 
-Note that, as of January 2016, even though two articles are published which used this genotyping array, the data are not (yet?) part of [[http://www.ncbi.nlm.nih.gov/projects/SNP/][dbSNP]], unfortunately.
+Note that, as of January 2016, even though at least [[http://dx.doi.org/10.1186/s12870-015-0510-9][two]] [[http://dx.doi.org/10.1186/s12870-015-0588-0][articles]] were published which used this genotyping array, the data are not (yet?) part of [[http://www.ncbi.nlm.nih.gov/projects/SNP/][dbSNP]] nor [[https://www.ebi.ac.uk/eva/][EVA]], unfortunately.
 Therefore, no unambiguous SNP identifiers exist which can be used across studies and genome assemblies.
 
 *** Align Illumina probes on PN40024 assemblies
