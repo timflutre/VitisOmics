@@ -19,9 +19,9 @@ if [ ! -f VV_chr12x.fsa.gz ]; then
 fi
 if [ $(ls -1 *.zip 2>/dev/null | wc -l) -ne 0 ]; then
   ls *.zip | while read f; do
+    unzip $f
+    prefix=$(echo $f | sed 's/.zip//')
     if [ ! -f "${prefix}.gz" ]; then
-      unzip $f
-      prefix=$(echo $f | sed 's/.zip//')
       gzip $prefix
       rm -f $f
     fi
