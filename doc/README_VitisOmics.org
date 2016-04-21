@@ -446,6 +446,8 @@ echo "../../src/samtools-picard_prep_VITVI_PN40024_12x_v2_chroms_URGI.bash" \
   | qsub -cwd -j y -V -N samtools-picard_prep_VITVI_PN40024_12x_v2_chroms_URGI -q normal.q
 #+end_src
 
+TODO: use =Vitis vinifera L. (NCBITaxonomyID:29760)= for the =SPECIES= field
+
 *** Index =VITVI_PN40024_12x_v0_chroms_URGI= for Bowtie2
 Launch:
 #+begin_src sh
@@ -500,8 +502,6 @@ echo "zcat GrapeReSeq_Illumina_18K_SNP_vinifera_probes.fa.gz | blastn -query - -
 The alignments are analyzed in the corresponding task in the script =src/vitisomics.R=.
 
 Among the 13562 "vinifera" probes, 33 are not aligned on the 12x0 assembly of the PN40024 genome, 24 are aligned on different chromosomes than indicated (mostly plastid genomes), and all the others look fine.
-
-TODO: when a SNP is named, e.g., =chr1_27655_C_T=, does the order "C then T" has a meaning? Is "C" the minor allele, or reciprocally? Or is it the allele present in the PN400 12x0 assembly?
 
 ** Manipulations of files from NCBI
 #+begin_src sh
