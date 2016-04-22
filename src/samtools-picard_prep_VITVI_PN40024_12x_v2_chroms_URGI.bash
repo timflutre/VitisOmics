@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright (C) 2015 Institut National de la Recherche Agronomique (INRA)
+# Copyright (C) 2015-2016 Institut National de la Recherche Agronomique (INRA)
 # License: GPL-3+
 # Persons: Timothée Flutre [cre,aut]
 
@@ -22,7 +22,9 @@ fi
 
 samtools faidx VITVI_PN40024_12x_v2_chroms_URGI.fa >& samtools_faidx_VITVI_PN40024_12x_v2_chroms_URGI.log
 
-java -Xmx4g -jar `which picard.jar` CreateSequenceDictionary REFERENCE=VITVI_PN40024_12x_v2_chroms_URGI.fa.gz OUTPUT=VITVI_PN40024_12x_v2_chroms_URGI.dict GENOME_ASSEMBLY=12x_v2 SPECIES="Vitis vinifera" TRUNCATE_NAMES_AT_WHITESPACE=true >& picard-CreateSequenceDictionary_VITVI_PN40024_12x_v2_chroms_URGI.log
+rm -f VITVI_PN40024_12x_v2_chroms_URGI.dict
+
+java -Xmx4g -jar `which picard.jar` CreateSequenceDictionary REFERENCE=VITVI_PN40024_12x_v2_chroms_URGI.fa.gz OUTPUT=VITVI_PN40024_12x_v2_chroms_URGI.dict GENOME_ASSEMBLY=12x_v2 SPECIES="Vitis vinifera L. (NCBITaxonomyID:29760)" TRUNCATE_NAMES_AT_WHITESPACE=true >& picard-CreateSequenceDictionary_VITVI_PN40024_12x_v2_chroms_URGI.log
 
 echo "done!"
 date

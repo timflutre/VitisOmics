@@ -446,8 +446,6 @@ echo "../../src/samtools-picard_prep_VITVI_PN40024_12x_v2_chroms_URGI.bash" \
   | qsub -cwd -j y -V -N samtools-picard_prep_VITVI_PN40024_12x_v2_chroms_URGI -q normal.q
 #+end_src
 
-TODO: use =Vitis vinifera L. (NCBITaxonomyID:29760)= for the =SPECIES= field
-
 *** Index =VITVI_PN40024_12x_v0_chroms_URGI= for Bowtie2
 Launch:
 #+begin_src sh
