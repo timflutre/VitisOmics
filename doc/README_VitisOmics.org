@@ -416,6 +416,13 @@ print a[1]": "sum; sumTot+=sum} END{print sumTot}'
 | chrUkn Vitis vinifera\vert{}PN40024\vert{}assembly12x.2 |    27389308 |
 | total                                                   |   486205130 |
 
+*** Format =VITVI_PN40024_8x_chroms_URGI= for BLAST
+Launch:
+#+begin_src sh
+echo "../../src/blast_format.bash VITVI_PN40024_8x_chroms_URGI.fa.gz" \
+  | qsub -cwd -j y -V -q normal.q -N blast_format_VITVI_PN40024_8x_v0_chroms_URGI
+#+end_src
+
 *** Format =VITVI_PN40024_12x_v0_chroms_URGI= for BLAST
 Launch:
 #+begin_src sh
