@@ -423,6 +423,13 @@ echo "../../src/blast_format.bash VITVI_PN40024_12x_v0_chroms_URGI.fa.gz" \
   | qsub -cwd -j y -V -q normal.q -N blast_format_VITVI_PN40024_12x_v0_chroms_URGI
 #+end_src
 
+*** Format =VITVI_PN40024_12x_v2_chroms_URGI= for BLAST
+Launch:
+#+begin_src sh
+echo "../../src/blast_format.bash VITVI_PN40024_12x_v2_chroms_URGI.fa.gz" \
+  | qsub -cwd -j y -V -q normal.q -N blast_format_VITVI_PN40024_12x_v2_chroms_URGI
+#+end_src
+
 *** Index =VITVI_PN40024_12x_v0_chroms_URGI= for BWA
 Launch:
 #+begin_src sh
