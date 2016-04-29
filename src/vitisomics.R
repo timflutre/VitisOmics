@@ -72,6 +72,46 @@ for(i in 1:nrow(fa.head)){
 } ## all good!
 
 ## ---------------------------------------------------------------------------
+## task: compare URGI and CRIBI fasta files for 12x.0 chromosomes
+
+library(Biostrings)
+
+## load URGI file
+urgi <-
+  readDNAStringSet(filepath="data/urgi/VV_chr12x.fsa.gz",
+                   format="fasta")
+length(urgi) # 33
+names(urgi[1]) # "FN597015 Vitis vinifera, line PN40024, unoriented chromosome_1, chr1 "
+width(urgi[1]) # 23037639
+letterFrequency(urgi[1], letters=c("A","T","G","C","N"))
+
+## load CRIBI file
+tmp.file <- "data/cribi/Genome12X_all-chrs.fa.gz"
+if(! file.exists(tmp.file)){
+  cmd <- paste0("tar -xzOf data/cribi/Genome12X.tar.gz | gzip > ", tmp.file)
+  system(cmd)
+}
+cribi <- readDNAStringSet(filepath=tmp.file, format="fasta")
+length(cribi) # 33
+names(cribi[1]) # "chr1"
+width(cribi[1]) # 23037639
+letterFrequency(cribi[1], letters=c("A","T","G","C","N"))
+
+fa.head <- data.frame(urgi=sapply(strsplit(names(urgi), " "), function(x){x[length(x)]}),
+                      cribi=names(cribi),
+                      stringsAsFactors=FALSE)
+
+all(sort(fa.head$urgi) == sort(fa.head$cribi)) # TRUE
+
+for(i in 1:nrow(fa.head)){
+  if(urgi[which(fa.head$urgi == fa.head$urgi[i])] !=
+     cribi[which(fa.head$cribi == fa.head$urgi[i])]){
+    message(fa.head$urgi[i])
+    break
+  }
+} ## all good!
+
+## ---------------------------------------------------------------------------
 ## task: convert SNP data of the 18K Illumina array from xls to txt.gz
 
 options(java.parameters="-Xmx1024m")
