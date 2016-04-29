@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright (C) 2015 Institut National de la Recherche Agronomique (INRA)
+# Copyright (C) 2015-2016 Institut National de la Recherche Agronomique (INRA)
 # License: GPL-3+
 # Author: Timothée Flutre
 
@@ -12,7 +12,9 @@ wget --timestamping http://genomes.cribi.unipd.it/DATA/Gene_V1_file_conversion.t
 wget --timestamping http://genomes.cribi.unipd.it/DATA/gene_conversion_V1_V0.txt
 wget --timestamping http://genomes.cribi.unipd.it/DATA/Matching_between_V1_V2.xls
 
-mkdir GFF
+wget --timestamping http://genomes.cribi.unipd.it/DATA/GENOME_12X/Genome12X.tar.gz
+
+mkdir -p GFF
 cd GFF/
 wget --timestamping http://genomes.cribi.unipd.it/DATA/GFF/V0.tar.gz
 if [ ! -f V1_phase.gff3.gz ]; then 
@@ -22,7 +24,7 @@ if [ ! -f V1_phase.gff3.gz ]; then
 fi
 wget --timestamping http://genomes.cribi.unipd.it/DATA/GFF/V1.tar.gz
 wget --timestamping http://genomes.cribi.unipd.it/DATA/GFF/V1_REPEAT.tar.gz
-cd .. # up of GFF/
+cd .. # up from GFF/
 
 mkdir -p V2
 cd V2/
@@ -46,6 +48,6 @@ if [ ! -f V2.1.gff3.gz ]; then
   gzip V2.1.gff3
 fi
 
-cd .. # up of V2.1/
+cd .. # up from V2.1/
 
-cd .. # up of V2/
+cd .. # up from V2/
