@@ -267,6 +267,25 @@ zcat data/cribi/V2/V2/V2.gff3.gz | wc -l # 821809
 zcat data/cribi/V2/V2.1/V2.1.gff3.gz | wc -l # 820944
 #+end_src
 
+Look at the latest (2.1), which seems to be a correct GFF3 file, even though it has no meta-data:
+#+begin_src sh
+zcat data/cribi/V2/V2.1/V2.1.gff3.gz | md5sum # fd5bd711563892ab42c50d77a27458dc
+zcat data/cribi/V2/V2.1/V2.1.gff3.gz | grep -c "##" # 0 meta-data
+zcat data/cribi/V2/V2.1/V2.1.gff3.gz | cut -f1 | sort | uniq -c | wc -l # 33 seqid: chr1 ...
+zcat data/cribi/V2/V2.1/V2.1.gff3.gz | cut -f2 | sort | uniq -c | wc -l # 4 sources: . EVM JIGSAWGAZE vitis_repeat_maskedN.fa
+zcat data/cribi/V2/V2.1/V2.1.gff3.gz | cut -f3 | sort | uniq -c | wc -l # 6 types
+zcat data/cribi/V2/V2.1/V2.1.gff3.gz | awk -F "\t" '{split($9,a,";"); for(i in a){split(a[i],b,"="); print b[1]}}' | sort | uniq -c # ID Name Parent
+#+end_src
+
+| type            |  count |
+|-----------------+--------|
+| gene            |  31845 |
+| mRNA            |  55564 |
+| exon            | 321050 |
+| five_prime_utr  |  58389 |
+| CDS             | 297312 |
+| three_prime_utr |  56784 |
+
 *** By NCBI (8x and 12x.0)
 The NCBI annotated the 8x and 12x.0 assemblies with the GNOMON software.
 
@@ -806,38 +825,7 @@ The target package is now ready to be installed:
 R CMD INSTALL BSgenome.Vvinifera.URGI.IGGP8X_0.1.tar.gz
 #+end_src
 
-TODO: package sent to Hervé Pagès; wait for agreement
-
-The 8X package is now available [[http://bioconductor.org/packages/release/data/annotation/html/BSgenome.Vvinifera.URGI.IGGP8X.html][here]].
-
-*** TxDb IGGP12Xv0 package from Genoscope annotations
-See the "Making and Utilizing TxDb Objects" vignette from the R/Bioconductor package [[http://www.bioconductor.org/packages/release/bioc/html/GenomicFeatures.html][GenomicFeature]].
-
-Set up the directory:
-#+begin_src sh
-cd results/
-mkdir -p make_TxDb_12Xv0_Genoscope
-cd make_TxDb_12Xv0_Genoscope/
-#+end_src
-
-Use =chrUkn= as was done for the BSgenome packages:
-#+begin_src sh
-zcat ../../data/urgi/12x_annotation_Genoscope_V0/Vitis_vinifera_annotation.gff.gz \
-  | sed 's/chrUn/chrUkn/g' | gzip > Vitis_vinifera_annotation.gff.gz
-#+end_src
-
-Convert the input GFF2 file into GFF3:
-#+begin_src sh
-echo "../../src/genoscope_gff2_to_gff3.py --gff2 Vitis_vinifera_annotation.gff.gz --gff3 Vitis_vinifera_annotation.gff3.gz" \
-  | qsub -cwd -j y -V -N stdout_genoscope_gff2_to_gff3 -q normal.q
-#+end_src
-
-TODO: https://support.bioconductor.org/p/82038/
-
-Make the package for Bioconductor:
-#+begin_src sh
-echo "date; Rscript -e 'library(GenomicFeatures); library(BSgenome.Vvinifera.URGI.IGGP12Xv0); txdb <- makeTxDbFromGFF(file=\"Vitis_vinifera_annotation.gff3.gz\", format=\"auto\", dataSource=\"https://urgi.versailles.inra.fr/content/download/2157/19376/file/Vitis_vinifera_annotation.gff.gz\", organism=\"Vitis vinifera\", taxonomyId=29760, chrominfo=seqinfo(BSgenome.Vvinifera.URGI.IGGP12Xv0)); makeTxDbPackage(txdb, version=\"0.1\", maintainer=\"Timothee Flutre <timothee.flutre@supagro.inra.fr>\", author=\"Timothee Flutre <timothee.flutre@supagro.inra.fr>\", license=\"CC0\"); sessionInfo()'; date" | qsub -cwd -j y -V -N stdout_make_TxDb -q normal.q
-#+end_src
+The 8X package is now available [[http://bioconductor.org/packages/release/data/annotation/html/BSgenome.Vvinifera.URGI.IGGP8X.html][here]] (Bioc 3.3).
 
 *** TxDb IGGP12Xv0 package from CRIBI annotations (V2.1)
 See the "Making and Utilizing TxDb Objects" vignette from the R/Bioconductor package [[http://www.bioconductor.org/packages/release/bioc/html/GenomicFeatures.html][GenomicFeature]].
@@ -862,11 +850,54 @@ zcat ../../data/cribi/V2/V2.1/V2.1.gff3.gz \
 gzip V2.1_updated.gff3
 #+end_src
 
-TODO
+Make the package for Bioconductor:
+#+begin_src sh
+echo "date; Rscript -e 'library(GenomicFeatures); library(BSgenome.Vvinifera.URGI.IGGP12Xv0); txdb <- makeTxDbFromGFF(file=\"V2.1_updated.gff3.gz\", format=\"auto\", dataSource=\"CRIBI (http://genomes.cribi.unipd.it/DATA/V2/V2.1/V2.1.gff3; meta-data added; chrUn renamed into chrUkn)\", organism=\"Vitis vinifera\", taxonomyId=29760, chrominfo=seqinfo(BSgenome.Vvinifera.URGI.IGGP12Xv0)); makeTxDbPackage(txdb, version=\"0.1\", maintainer=\"Timothee Flutre <timothee.flutre@supagro.inra.fr>\", author=\"Timothee Flutre <timothee.flutre@supagro.inra.fr>\", license=\"CC0\", pkgname=\"TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0\"); sessionInfo()'; date" | qsub -cwd -j y -V -N stdout_make_TxDb -q normal.q
+#+end_src
+
+A few edits are made to the automatically-generated =DESCRIPTION= and =man/package.Rd= files (see https://support.bioconductor.org/p/82278/).
+A dot is also added at the end of the description.
+
+Build the package and check it:
+#+begin_src sh
+echo "date; R CMD build TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0; date" | qsub -cwd -j y -V -N build_TxDb -q normal.q
+echo "date; R CMD check TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0_0.1.tar.gz; date" | qsub -cwd -j y -V -N check_TxDb -q normal.q
+#+end_src
+
+The target package is now ready to be installed:
+#+begin_src sh
+R CMD INSTALL TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0_0.1.tar.gz
+#+end_src
+
+Check that information in the TxDb pkg is identical to information in the GFF3 file: see =src/vitisomics.R=.
+
+TODO: submit the package to Bioc (=valerie.obenchain@roswellpark.org=, as advised by Hervé Pagès)
+
+*** TxDb IGGP12Xv0 package from Genoscope annotations
+Set up the directory:
+#+begin_src sh
+cd results/
+mkdir -p make_TxDb_12Xv0_Genoscope
+cd make_TxDb_12Xv0_Genoscope/
+#+end_src
+
+Use =chrUkn= as was done for the BSgenome packages:
+#+begin_src sh
+zcat ../../data/urgi/12x_annotation_Genoscope_V0/Vitis_vinifera_annotation.gff.gz \
+  | sed 's/chrUn/chrUkn/g' | gzip > Vitis_vinifera_annotation.gff.gz
+#+end_src
+
+Convert the input GFF2 file into GFF3:
+#+begin_src sh
+echo "../../src/genoscope_gff2_to_gff3.py --gff2 Vitis_vinifera_annotation.gff.gz --gff3 Vitis_vinifera_annotation.gff3.gz" \
+  | qsub -cwd -j y -V -N stdout_genoscope_gff2_to_gff3 -q normal.q
+#+end_src
+
+TODO: https://support.bioconductor.org/p/82038/
 
 Make the package for Bioconductor:
 #+begin_src sh
-echo "date; Rscript -e 'library(GenomicFeatures); library(BSgenome.Vvinifera.URGI.IGGP12Xv0); txdb <- makeTxDbFromGFF(file=\"V2.1_updated.gff3.gz\", format=\"auto\", dataSource=\"http://genomes.cribi.unipd.it/DATA/V2/V2.1/V2.1.gff3\", organism=\"Vitis vinifera\", taxonomyId=29760, chrominfo=seqinfo(BSgenome.Vvinifera.URGI.IGGP12Xv0)); makeTxDbPackage(txdb, version=\"0.1\", maintainer=\"Timothee Flutre <timothee.flutre@supagro.inra.fr>\", author=\"Timothee Flutre <timothee.flutre@supagro.inra.fr>\", license=\"CC0\"); sessionInfo()'; date" | qsub -cwd -j y -V -N stdout_make_TxDb -q normal.q
+echo "date; Rscript -e 'library(GenomicFeatures); library(BSgenome.Vvinifera.URGI.IGGP12Xv0); txdb <- makeTxDbFromGFF(file=\"Vitis_vinifera_annotation.gff3.gz\", format=\"auto\", dataSource=\"https://urgi.versailles.inra.fr/content/download/2157/19376/file/Vitis_vinifera_annotation.gff.gz\", organism=\"Vitis vinifera\", taxonomyId=29760, chrominfo=seqinfo(BSgenome.Vvinifera.URGI.IGGP12Xv0)); makeTxDbPackage(txdb, version=\"0.1\", maintainer=\"Timothee Flutre <timothee.flutre@supagro.inra.fr>\", author=\"Timothee Flutre <timothee.flutre@supagro.inra.fr>\", license=\"CC0\"); sessionInfo()'; date" | qsub -cwd -j y -V -N stdout_make_TxDb -q normal.q
 #+end_src
 
 *** TxDb IGGP12Xv0 package from NCBI annotations

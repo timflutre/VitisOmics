@@ -264,3 +264,33 @@ sum(dat2[dat2$aln.sseqid == dat2$Chromosome, "aln.sstart"] >=
     dat2[dat2$aln.sseqid == dat2$Chromosome, "Coordinate"] ||
     dat2[dat2$aln.sseqid == dat2$Chromosome, "aln.send"] <=
     dat2[dat2$aln.sseqid == dat2$Chromosome, "Coordinate"]) # 0
+
+## ---------------------------------------------------------------------------
+## task: check the TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0 package
+
+library(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0)
+?TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0
+TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0
+
+length(genes(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0)) # 31845
+length(transcripts(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0)) # 55564
+length(exons(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0)) # 321050
+length(cds(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0)) # 297312
+
+## let us choose a "good-example" gene:
+## VIT_201s0011g00050: chr1, 3 mRNAs, 13 exons
+
+g <- genes(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0)
+g["VIT_201s0011g00050"]
+
+t <- transcriptsBy(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0, "gene")
+t["VIT_201s0011g00050"]
+
+eg <- exonsBy(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0, "gene")
+eg["VIT_201s0011g00050"]
+
+et <- exonsBy(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0, "tx", use.names=TRUE)
+et["VIT_201s0011g00050.2"]
+
+f <- fiveUTRsByTranscript(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0, use.names=TRUE)
+f["VIT_201s0011g00050.2"] # note that the 5' UTR IDs from the GFF3 file are absent
