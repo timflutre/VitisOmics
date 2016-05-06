@@ -701,6 +701,7 @@ TODO: check for "pseudo" but empty
 ** Creation of R/Bioconductor packages
 - http://www.bioconductor.org/
 - Huber, W. et al. Orchestrating high-throughput genomic analysis with bioconductor. Nature Methods 12, 115-121 (2015). URL http://dx.doi.org/10.1038/nmeth.3252.
+- http://bioconductor.org/packages/release/BiocViews.html#___Vitis_vinifera
 
 TODO: see [[http://www.bioconductor.org/packages/release/bioc/html/AnnotationHub.html][AnnotationHub]]
 
@@ -871,7 +872,9 @@ R CMD INSTALL TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0_0.1.tar.gz
 
 Check that information in the TxDb pkg is identical to information in the GFF3 file: see =src/vitisomics.R=.
 
-TODO: submit the package to Bioc (=valerie.obenchain@roswellpark.org=, as advised by Hervé Pagès)
+The package was sent to Bioc (=valerie.obenchain@roswellpark.org=, as advised by Hervé Pagès).
+
+TODO: wait for the pkg to appear on Bioc's website
 
 *** TxDb IGGP12Xv0 package from Genoscope annotations
 Set up the directory:
@@ -881,24 +884,55 @@ mkdir -p make_TxDb_12Xv0_Genoscope
 cd make_TxDb_12Xv0_Genoscope/
 #+end_src
 
-Use =chrUkn= as was done for the BSgenome packages:
-#+begin_src sh
-zcat ../../data/urgi/12x_annotation_Genoscope_V0/Vitis_vinifera_annotation.gff.gz \
-  | sed 's/chrUn/chrUkn/g' | gzip > Vitis_vinifera_annotation.gff.gz
-#+end_src
-
 Convert the input GFF2 file into GFF3:
 #+begin_src sh
+ln -s ../../data/urgi/12x_annotation_Genoscope_V0/Vitis_vinifera_annotation.gff.gz .
+ln -s ../urgi/VITVI_PN40024_12x_v0_chroms_URGI.fa.gz .
 echo "../../src/genoscope_gff2_to_gff3.py --gff2 Vitis_vinifera_annotation.gff.gz --gff3 Vitis_vinifera_annotation.gff3.gz" \
   | qsub -cwd -j y -V -N stdout_genoscope_gff2_to_gff3 -q normal.q
 #+end_src
 
-TODO: https://support.bioconductor.org/p/82038/
+Use =chrUkn= as was done for the BSgenome packages:
+#+begin_src sh
+zcat Vitis_vinifera_annotation.gff3.gz \
+  | sed 's/chrUn/chrUkn/g' | gzip > Vitis_vinifera_annotation_updated.gff3.gz
+#+end_src
 
 Make the package for Bioconductor:
 #+begin_src sh
-echo "date; Rscript -e 'library(GenomicFeatures); library(BSgenome.Vvinifera.URGI.IGGP12Xv0); txdb <- makeTxDbFromGFF(file=\"Vitis_vinifera_annotation.gff3.gz\", format=\"auto\", dataSource=\"https://urgi.versailles.inra.fr/content/download/2157/19376/file/Vitis_vinifera_annotation.gff.gz\", organism=\"Vitis vinifera\", taxonomyId=29760, chrominfo=seqinfo(BSgenome.Vvinifera.URGI.IGGP12Xv0)); makeTxDbPackage(txdb, version=\"0.1\", maintainer=\"Timothee Flutre <timothee.flutre@supagro.inra.fr>\", author=\"Timothee Flutre <timothee.flutre@supagro.inra.fr>\", license=\"CC0\"); sessionInfo()'; date" | qsub -cwd -j y -V -N stdout_make_TxDb -q normal.q
+echo "date; Rscript -e 'library(GenomicFeatures); library(BSgenome.Vvinifera.URGI.IGGP12Xv0); txdb <- makeTxDbFromGFF(file=\"Vitis_vinifera_annotation_updated.gff3.gz\", format=\"auto\", dataSource=\"Genoscope (from URGI at https://urgi.versailles.inra.fr/content/download/2157/19376/file/Vitis_vinifera_annotation.gff.gz; meta-data added; GFF2 converted into GFF3; chrUn renamed into chrUkn)\", organism=\"Vitis vinifera\", taxonomyId=29760, chrominfo=seqinfo(BSgenome.Vvinifera.URGI.IGGP12Xv0)); makeTxDbPackage(txdb, version=\"0.1\", maintainer=\"Timothee Flutre <timothee.flutre@supagro.inra.fr>\", author=\"Timothee Flutre <timothee.flutre@supagro.inra.fr>\", license=\"CC0\", pkgname=\"TxDb.Vvinifera.Genoscope.IGGP12Xv0\"); sessionInfo()'; date" | qsub -cwd -j y -V -N stdout_make_TxDb -q normal.q
 #+end_src
+
+A few edits are made to the automatically-generated =DESCRIPTION= and =man/package.Rd= files (see https://support.bioconductor.org/p/82278/).
+The provider version is set at "0" to follow Grimplet et al (2012).
+A dot is also added at the end of the description.
+
+Build the package and check it:
+#+begin_src sh
+echo "date; R CMD build TxDb.Vvinifera.Genoscope.IGGP12Xv0; date" | qsub -cwd -j y -V -N build_TxDb -q normal.q
+echo "date; R CMD check TxDb.Vvinifera.Genoscope.IGGP12Xv0_0.1.tar.gz; date" | qsub -cwd -j y -V -N check_TxDb -q normal.q
+#+end_src
+
+The target package is now ready to be installed:
+#+begin_src sh
+R CMD INSTALL TxDb.Vvinifera.Genoscope.IGGP12Xv0_0.1.tar.gz
+#+end_src
+
+Check that information in the TxDb pkg is identical to information in the GFF3 file: see =src/vitisomics.R=.
+
+TODO: submit the package to Bioc (=valerie.obenchain@roswellpark.org=, as advised by Hervé Pagès)
+
+*** TxDb IGGP8X package from Genoscope annotations
+Set up the directory:
+#+begin_src sh
+cd results/
+mkdir -p make_TxDb_8X_Genoscope
+cd make_TxDb_8X_Genoscope/
+#+end_src
+
+TODO
 
 *** TxDb IGGP12Xv0 package from NCBI annotations
 TODO: see the "Making New Organism Packages" vignette from the R/Bioconductor package "AnnotationForge"
+
+See also the new genbank package from Bioc http://www.bioconductor.org/packages/release/bioc/html/genbankr.html

@@ -294,3 +294,30 @@ et["VIT_201s0011g00050.2"]
 
 f <- fiveUTRsByTranscript(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0, use.names=TRUE)
 f["VIT_201s0011g00050.2"] # note that the 5' UTR IDs from the GFF3 file are absent
+
+## ---------------------------------------------------------------------------
+## task: check the TxDb.Vvinifera.Genoscope.IGGP12Xv0 package
+
+library(TxDb.Vvinifera.Genoscope.IGGP12Xv0)
+?TxDb.Vvinifera.Genoscope.IGGP12Xv0
+TxDb.Vvinifera.Genoscope.IGGP12Xv0
+
+length(genes(TxDb.Vvinifera.Genoscope.IGGP12Xv0)) # 26346
+length(transcripts(TxDb.Vvinifera.Genoscope.IGGP12Xv0)) # 26346
+length(exons(TxDb.Vvinifera.Genoscope.IGGP12Xv0)) # 156765
+length(cds(TxDb.Vvinifera.Genoscope.IGGP12Xv0)) # 156765
+
+## let us choose a "good-example" gene:
+## GSVIVG01000001001: chr14, 1 mRNA, 4 CDSs, 1 UTR
+
+g <- genes(TxDb.Vvinifera.Genoscope.IGGP12Xv0)
+g["GSVIVG01000001001"]
+
+t <- transcriptsBy(TxDb.Vvinifera.Genoscope.IGGP12Xv0, "gene")
+t["GSVIVG01000001001"]
+
+eg <- exonsBy(TxDb.Vvinifera.Genoscope.IGGP12Xv0, "gene")
+eg["GSVIVG01000001001"]
+
+et <- exonsBy(TxDb.Vvinifera.Genoscope.IGGP12Xv0, "tx", use.names=TRUE)
+et["GSVIVT01000001001"]
