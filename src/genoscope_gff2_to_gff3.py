@@ -30,7 +30,7 @@ if sys.version_info[0] == 2:
         sys.stderr.write("%s\n\n" % msg)
         sys.exit(1)
         
-progVersion = "1.0.0" # http://semver.org/
+progVersion = "1.0.1" # http://semver.org/
 
 
 # http://stackoverflow.com/a/3033342/597069
@@ -44,7 +44,7 @@ class GenoscopeGff2ToGff3(object):
     def __init__(self):
         self.verbose = 1
         self.gff2File = None
-        self.faFile = "VITVI_PN40024_12x_v0_chroms_URGI.fa.gz"
+        self.faFile = None
         self.gff3File = None
         
         
@@ -64,11 +64,10 @@ class GenoscopeGff2ToGff3(object):
         msg += "  -v, --verbose\tverbosity level (0/default=1/2/3)\n"
         msg += "      --gff2\tpath to the input file in GFF2 (can be gzipped)\n"
         msg += "      --fa\tpath to the reference genome in fasta format (can be gzipped)\n"
-        msg += "\t\tdefault=VITVI_PN40024_12x_v0_chroms_URGI.fa.gz\n"
         msg += "      --gff3\tpath to the output file in GFF3 (can be gzipped)\n"
         msg += "\n"
         msg += "Examples:\n"
-        msg += "  %s --gff2 Vitis_vinifera_annotation.gff.gz --gff3 Vitis_vinifera_annotation.gff3.gz\n" % os.path.basename(sys.argv[0])
+        msg += "  %s --gff2 Vitis_vinifera_annotation.gff.gz --fa VITVI_PN40024_12x_v0_chroms_URGI.fa.gz --gff3 Vitis_vinifera_annotation.gff3.gz\n" % os.path.basename(sys.argv[0])
         msg += "\n"
         msg += "Report bugs to <timothee.flutre@supagro.inra.fr>."
         print(msg); sys.stdout.flush()
@@ -216,12 +215,14 @@ class GenoscopeGff2ToGff3(object):
         gff2Handle.seek(0)
         fmt = "\t".join(["{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}"])
         dGenes = {} # gene_ID: [number of mRNA(s), number of CDS(s)]
+        nbUTRs = 0
         
         while True:
             line = gff2Handle.readline()
             if line == "":
                 break
-            tokens = line.split("\t")
+            # print(line) # debug
+            tokens = line.rstrip().split("\t")
             tokensAttr = tokens[8].split(" ")
             
             txt = fmt.format(*(tokens[0:8])) # no change to the first 8 fields
@@ -249,6 +250,10 @@ class GenoscopeGff2ToGff3(object):
                 txt += ";Name=%s" % cdsId
                 txt += ";Parent=%s" % txId
                 
+            elif tokens[2] == "UTR":
+                nbUTRs += 1
+                continue
+            
             gff3Handle.write("%s\n" % txt)
             
         if self.verbose > 0:
@@ -260,7 +265,8 @@ class GenoscopeGff2ToGff3(object):
             nbCds = 0
             for gene in dGenes:
                 nbCds += dGenes[gene]["CDS"]
-            print("%i transcripts" % nbCds)
+            print("%i CDSs" % nbCds)
+            print("%i skipped UTRs" % nbUTRs)
             sys.stdout.flush()
             
             

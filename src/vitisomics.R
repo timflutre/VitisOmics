@@ -266,58 +266,230 @@ sum(dat2[dat2$aln.sseqid == dat2$Chromosome, "aln.sstart"] >=
     dat2[dat2$aln.sseqid == dat2$Chromosome, "Coordinate"]) # 0
 
 ## ---------------------------------------------------------------------------
-## task: check the TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0 package
+## task: make TxDb on IGGP12Xv0 from CRIBI (V2.1)
 
-library(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0)
-?TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0
-TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0
+library(rtracklayer)
 
-length(genes(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0)) # 31845
-length(transcripts(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0)) # 55564
-length(exons(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0)) # 321050
-length(cds(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0)) # 297312
+setwd("results/make_TxDb_IGGP12Xv0_CRIBIv2-1")
+
+out.dir <- "input_AnnotHub_IGGP12Xv0_CRIBIv2.1"
+if(dir.exists(out.dir))
+  unlink(out.dir, recursive=TRUE)
+dir.create(path=out.dir)
+
+p2f <- "V2.1_updated.gff3.gz"
+file.copy(from=p2f, to=paste0(out.dir, "/", basename(p2f)))
+
+gr <- import.gff(con=p2f, version="3", genome="IGGP12Xv0",
+                 sequenceRegionsAsSeqinfo=FALSE)
+## TODO: understand why TRUE doesn't work
+length(gr) # 820944
+
+p2f <- paste0(out.dir, "/GRanges.RData")
+save(gr, file=p2f)
+
+p2f <- paste0(out.dir, "/metadata.txt")
+if(file.exists(p2f))
+  file.remove(p2f)
+cat("SourceUrl: http://genomes.cribi.unipd.it/DATA/V2/V2.1/V2.1.gff3\n",
+    file=p2f, append=TRUE)
+cat("SourceType: gff3\n", file=p2f, append=TRUE)
+cat("SourceVersion: 2.1\n", file=p2f, append=TRUE)
+cat("SourceLastModifiedDate: 2014-04-17\n", file=p2f, append=TRUE)
+cat("DataProvider: CRIBI\n", file=p2f, append=TRUE)
+cat("Title: Vvinifera_CRIBI_IGGP12Xv0_V2.1.gff3.Rdata\n", file=p2f, append=TRUE)
+cat("Description: Gene Annotation for Vitis vinifera\n", file=p2f, append=TRUE)
+cat("Species: Vitis vinifera\n", file=p2f, append=TRUE)
+cat("TaxonomyId: 29760\n", file=p2f, append=TRUE)
+cat("Genome: IGGP12Xv0\n", file=p2f, append=TRUE)
+cat("Maintainer: Timothée Flutre timothee.flutre@supagro.inra.fr\n", file=p2f, append=TRUE)
+cat("Notes: compare to the original file, meta-data were added, and chrUn was renamed into chrUkn\n", file=p2f, append=TRUE)
+
+tar(tarfile=paste0(out.dir, ".tar.gz"),
+    files=out.dir, compression="gzip")
+## to be sent to Valerie Obenchain (from Bioconductor)
+
+## ---------------------------------------------------------------------------
+## task: check the TxDb on IGGP12Xv0 from CRIBI (V2.1)
+
+library(AnnotationHub)
+
+ahub <- AnnotationHub()
+"Vitis vinifera" %in% unique(ahub$species)
+"CRIBI" %in% unique(ahub$dataprovider)
+query(ahub, c("Vitis vinifera", "CRIBI"))
+
+## download the GRanges
+gr <- ahub[["AH50773"]]
+
+## make the TxDb
+library(GenomicFeatures)
+txdb <- makeTxDbFromGRanges(gr)
+
+## save the TxDb into a ".sqlite" database file
+## so that it can be made available to other users
+p2f <- paste0("results/make_TxDb_IGGP12Xv0_CRIBIv2-1/"
+              "TxDb_Vvinifera_IGGP12Xv0_CRIBIv2-1.sqlite")
+saveDb(x=txdb, file=p2f)
+
+## load the TxDb
+txdb <- loadDb(file=p2f)
+
+## have a look at the resource
+txdb
+length(genes(txdb)) # 31845
+length(transcripts(txdb)) # 55564
+length(exons(txdb)) # 321050
+length(cds(txdb)) # 297312
 
 ## let us choose a "good-example" gene:
 ## VIT_201s0011g00050: chr1, 3 mRNAs, 13 exons
 
-g <- genes(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0)
+g <- genes(txdb)
 g["VIT_201s0011g00050"]
 
-t <- transcriptsBy(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0, "gene")
+t <- transcriptsBy(txdb, "gene")
 t["VIT_201s0011g00050"]
 
-eg <- exonsBy(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0, "gene")
+eg <- exonsBy(txdb, "gene")
 eg["VIT_201s0011g00050"]
 
-et <- exonsBy(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0, "tx", use.names=TRUE)
+et <- exonsBy(txdb, "tx", use.names=TRUE)
 et["VIT_201s0011g00050.2"]
 
-f <- fiveUTRsByTranscript(TxDb.Vvinifera.CRIBIV2v1.IGGP12Xv0, use.names=TRUE)
+f <- fiveUTRsByTranscript(txdb, use.names=TRUE)
 f["VIT_201s0011g00050.2"] # note that the 5' UTR IDs from the GFF3 file are absent
 
 ## ---------------------------------------------------------------------------
-## task: check the TxDb.Vvinifera.Genoscope.IGGP12Xv0 package
+## task: make TxDb on IGGP12Xv0 from Genoscope
 
-library(TxDb.Vvinifera.Genoscope.IGGP12Xv0)
-?TxDb.Vvinifera.Genoscope.IGGP12Xv0
-TxDb.Vvinifera.Genoscope.IGGP12Xv0
+library(rtracklayer)
 
-length(genes(TxDb.Vvinifera.Genoscope.IGGP12Xv0)) # 26346
-length(transcripts(TxDb.Vvinifera.Genoscope.IGGP12Xv0)) # 26346
-length(exons(TxDb.Vvinifera.Genoscope.IGGP12Xv0)) # 156765
-length(cds(TxDb.Vvinifera.Genoscope.IGGP12Xv0)) # 156765
+setwd("results/make_TxDb_IGGP12Xv0_Genoscope")
+
+out.dir <- "input_AnnotHub_IGGP12Xv0_Genoscope"
+if(dir.exists(out.dir))
+  unlink(out.dir, recursive=TRUE)
+dir.create(path=out.dir)
+
+p2f <- "Vitis_vinifera_annotation_updated.gff3.gz"
+file.copy(from=p2f, to=paste0(out.dir, "/", basename(p2f)))
+
+gr <- import.gff(con=p2f, version="3", genome="IGGP12Xv0",
+                 sequenceRegionsAsSeqinfo=TRUE)
+length(gr) # 209457
+
+p2f <- paste0(out.dir, "/GRanges.RData")
+save(gr, file=p2f)
+
+p2f <- paste0(out.dir, "/metadata.txt")
+if(file.exists(p2f))
+  file.remove(p2f)
+cat("SourceUrl: http://www.genoscope.cns.fr/externe/Download/Projets/Projet_ML/data/12X/annotation/Vitis_vinifera_annotation.gff.gz\n",
+    file=p2f, append=TRUE)
+cat("SourceType: gff3\n", file=p2f, append=TRUE)
+cat("SourceVersion: 1.0\n", file=p2f, append=TRUE)
+cat("SourceLastModifiedDate: 2010-03-19\n", file=p2f, append=TRUE)
+cat("DataProvider: Genoscope\n", file=p2f, append=TRUE)
+cat("Title: Vvinifera_Genoscope_IGGP12Xv0.gff3.Rdata\n", file=p2f, append=TRUE)
+cat("Description: Gene Annotation for Vitis vinifera\n", file=p2f, append=TRUE)
+cat("Species: Vitis vinifera\n", file=p2f, append=TRUE)
+cat("TaxonomyId: 29760\n", file=p2f, append=TRUE)
+cat("Genome: IGGP12Xv0\n", file=p2f, append=TRUE)
+cat("Maintainer: Timothée Flutre timothee.flutre@supagro.inra.fr\n", file=p2f, append=TRUE)
+cat("Notes: compare to the original file, the format was upgraded from GFF2 to GFF3 only keeping rows corresponding to gene/mRNA/CDS, meta-data were added, and chrUn was renamed into chrUkn\n", file=p2f, append=TRUE)
+
+tar(tarfile=paste0(out.dir, ".tar.gz"),
+    files=out.dir, compression="gzip")
+## to be sent to Valerie Obenchain (from Bioconductor)
+
+## ---------------------------------------------------------------------------
+## task: check the TxDb on IGGP12Xv0 from Genoscope
+
+library(AnnotationHub)
+
+ahub <- AnnotationHub()
+"Vitis vinifera" %in% unique(ahub$species)
+"Genoscope" %in% unique(ahub$dataprovider)
+query(ahub, c("Vitis vinifera", "Genoscope"))
+
+## download the GRanges
+gr <- ahub[["<?>"]]
+
+## make the TxDb
+library(GenomicFeatures)
+txdb <- makeTxDbFromGRanges(gr)
+
+## save the TxDb into a ".sqlite" database file
+## so that it can be made available to other users
+p2f <- paste0("results/make_TxDb_IGGP12Xv0_Genoscope/"
+              "TxDb_Vvinifera_IGGP12Xv0_Genoscope.sqlite")
+saveDb(x=txdb, file=p2f)
+
+## load the TxDb
+txdb <- loadDb(file=p2f)
+
+## have a look at the resource
+txdb
+length(genes(txdb)) # 26346
+length(transcripts(txdb)) # 26346
+length(exons(txdb)) # 156765
+length(cds(txdb)) # 156765
 
 ## let us choose a "good-example" gene:
 ## GSVIVG01000001001: chr14, 1 mRNA, 4 CDSs, 1 UTR
 
-g <- genes(TxDb.Vvinifera.Genoscope.IGGP12Xv0)
+g <- genes(txdb)
 g["GSVIVG01000001001"]
 
-t <- transcriptsBy(TxDb.Vvinifera.Genoscope.IGGP12Xv0, "gene")
+t <- transcriptsBy(txdb, "gene")
 t["GSVIVG01000001001"]
 
-eg <- exonsBy(TxDb.Vvinifera.Genoscope.IGGP12Xv0, "gene")
+eg <- exonsBy(txdb, "gene")
 eg["GSVIVG01000001001"]
 
-et <- exonsBy(TxDb.Vvinifera.Genoscope.IGGP12Xv0, "tx", use.names=TRUE)
+et <- exonsBy(txdb, "tx", use.names=TRUE)
 et["GSVIVT01000001001"]
+
+## ---------------------------------------------------------------------------
+## task: make TxDb on IGGP8X from Genoscope
+
+library(rtracklayer)
+
+setwd("results/make_TxDb_IGGP8X_Genoscope")
+
+out.dir <- "input_AnnotHub_IGGP8X_Genoscope"
+if(dir.exists(out.dir))
+  unlink(out.dir, recursive=TRUE)
+dir.create(path=out.dir)
+
+p2f <- "Vitis_vinifera_annotation_v1_updated.gff3.gz"
+file.copy(from=p2f, to=paste0(out.dir, "/", basename(p2f)))
+
+gr <- import.gff(con=p2f, version="3", genome="IGGP8X",
+                 sequenceRegionsAsSeqinfo=TRUE)
+length(gr) # 210219
+
+p2f <- paste0(out.dir, "/GRanges.RData")
+save(gr, file=p2f)
+
+p2f <- paste0(out.dir, "/metadata.txt")
+if(file.exists(p2f))
+  file.remove(p2f)
+cat("SourceUrl: http://www.genoscope.cns.fr/externe/Download/Projets/Projet_ML/data/8X/annotation/Vitis_vinifera_annotation_v1.gff\n",
+    file=p2f, append=TRUE)
+cat("SourceType: gff3\n", file=p2f, append=TRUE)
+cat("SourceVersion: 1.0\n", file=p2f, append=TRUE)
+cat("SourceLastModifiedDate: 2007-10-09\n", file=p2f, append=TRUE)
+cat("DataProvider: Genoscope\n", file=p2f, append=TRUE)
+cat("Title: Vvinifera_Genoscope_IGGP8X.gff3.Rdata\n", file=p2f, append=TRUE)
+cat("Description: Gene Annotation for Vitis vinifera\n", file=p2f, append=TRUE)
+cat("Species: Vitis vinifera\n", file=p2f, append=TRUE)
+cat("TaxonomyId: 29760\n", file=p2f, append=TRUE)
+cat("Genome: IGGP8X\n", file=p2f, append=TRUE)
+cat("Maintainer: Timothée Flutre timothee.flutre@supagro.inra.fr\n", file=p2f, append=TRUE)
+cat("Notes: compare to the original file, the format was upgraded from GFF2 to GFF3 only keeping rows corresponding to gene/mRNA/CDS, meta-data were added, and chrUn was renamed into chrUkn\n", file=p2f, append=TRUE)
+
+tar(tarfile=paste0(out.dir, ".tar.gz"),
+    files=out.dir, compression="gzip")
+## to be sent to Valerie Obenchain (from Bioconductor)
