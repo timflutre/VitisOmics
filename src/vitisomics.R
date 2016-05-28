@@ -281,8 +281,7 @@ p2f <- "V2.1_updated.gff3.gz"
 file.copy(from=p2f, to=paste0(out.dir, "/", basename(p2f)))
 
 gr <- import.gff(con=p2f, version="3", genome="IGGP12Xv0",
-                 sequenceRegionsAsSeqinfo=FALSE)
-## TODO: understand why TRUE doesn't work
+                 sequenceRegionsAsSeqinfo=TRUE)
 length(gr) # 820944
 
 p2f <- paste0(out.dir, "/GRanges.RData")
@@ -307,7 +306,7 @@ cat("Notes: compare to the original file, meta-data were added, and chrUn was re
 
 tar(tarfile=paste0(out.dir, ".tar.gz"),
     files=out.dir, compression="gzip")
-## to be sent to Valerie Obenchain (from Bioconductor)
+## to be sent to Bioconductor
 
 ## ---------------------------------------------------------------------------
 ## task: check the TxDb on IGGP12Xv0 from CRIBI (V2.1)
@@ -401,7 +400,7 @@ cat("Notes: compare to the original file, the format was upgraded from GFF2 to G
 
 tar(tarfile=paste0(out.dir, ".tar.gz"),
     files=out.dir, compression="gzip")
-## to be sent to Valerie Obenchain (from Bioconductor)
+## to be sent to Bioconductor
 
 ## ---------------------------------------------------------------------------
 ## task: check the TxDb on IGGP12Xv0 from Genoscope
@@ -492,4 +491,4 @@ cat("Notes: compare to the original file, the format was upgraded from GFF2 to G
 
 tar(tarfile=paste0(out.dir, ".tar.gz"),
     files=out.dir, compression="gzip")
-## to be sent to Valerie Obenchain (from Bioconductor)
+## to be sent to Bioconductor
