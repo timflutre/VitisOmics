@@ -327,7 +327,7 @@ txdb <- makeTxDbFromGRanges(gr)
 
 ## save the TxDb into a ".sqlite" database file
 ## so that it can be made available to other users
-p2f <- paste0("results/make_TxDb_IGGP12Xv0_CRIBIv2-1/"
+p2f <- paste0("results/make_TxDb_IGGP12Xv0_CRIBIv2-1/",
               "TxDb_Vvinifera_IGGP12Xv0_CRIBIv2-1.sqlite")
 saveDb(x=txdb, file=p2f)
 
@@ -390,7 +390,7 @@ cat("SourceType: gff3\n", file=p2f, append=TRUE)
 cat("SourceVersion: 1.0\n", file=p2f, append=TRUE)
 cat("SourceLastModifiedDate: 2010-03-19\n", file=p2f, append=TRUE)
 cat("DataProvider: Genoscope\n", file=p2f, append=TRUE)
-cat("Title: Vvinifera_Genoscope_IGGP12Xv0.gff3.Rdata\n", file=p2f, append=TRUE)
+cat("Title: Vvinifera_Genoscope_IGGP12Xv0_V1.0.gff3.Rdata\n", file=p2f, append=TRUE)
 cat("Description: Gene Annotation for Vitis vinifera\n", file=p2f, append=TRUE)
 cat("Species: Vitis vinifera\n", file=p2f, append=TRUE)
 cat("TaxonomyId: 29760\n", file=p2f, append=TRUE)
@@ -413,7 +413,7 @@ ahub <- AnnotationHub()
 query(ahub, c("Vitis vinifera", "Genoscope"))
 
 ## download the GRanges
-gr <- ahub[["<?>"]]
+gr <- ahub[["AH50774"]]
 
 ## make the TxDb
 library(GenomicFeatures)
@@ -421,7 +421,7 @@ txdb <- makeTxDbFromGRanges(gr)
 
 ## save the TxDb into a ".sqlite" database file
 ## so that it can be made available to other users
-p2f <- paste0("results/make_TxDb_IGGP12Xv0_Genoscope/"
+p2f <- paste0("results/make_TxDb_IGGP12Xv0_Genoscope/",
               "TxDb_Vvinifera_IGGP12Xv0_Genoscope.sqlite")
 saveDb(x=txdb, file=p2f)
 
@@ -481,7 +481,7 @@ cat("SourceType: gff3\n", file=p2f, append=TRUE)
 cat("SourceVersion: 1.0\n", file=p2f, append=TRUE)
 cat("SourceLastModifiedDate: 2007-10-09\n", file=p2f, append=TRUE)
 cat("DataProvider: Genoscope\n", file=p2f, append=TRUE)
-cat("Title: Vvinifera_Genoscope_IGGP8X.gff3.Rdata\n", file=p2f, append=TRUE)
+cat("Title: Vvinifera_Genoscope_IGGP8X_V1.0.gff3.Rdata\n", file=p2f, append=TRUE)
 cat("Description: Gene Annotation for Vitis vinifera\n", file=p2f, append=TRUE)
 cat("Species: Vitis vinifera\n", file=p2f, append=TRUE)
 cat("TaxonomyId: 29760\n", file=p2f, append=TRUE)
@@ -492,3 +492,36 @@ cat("Notes: compare to the original file, the format was upgraded from GFF2 to G
 tar(tarfile=paste0(out.dir, ".tar.gz"),
     files=out.dir, compression="gzip")
 ## to be sent to Bioconductor
+
+## ---------------------------------------------------------------------------
+## task: check the TxDb on IGGP8X from Genoscope
+
+library(AnnotationHub)
+
+ahub <- AnnotationHub()
+"Vitis vinifera" %in% unique(ahub$species)
+"Genoscope" %in% unique(ahub$dataprovider)
+query(ahub, c("Vitis vinifera", "Genoscope"))
+
+## download the GRanges
+gr <- ahub[["AH50775"]]
+
+## make the TxDb
+library(GenomicFeatures)
+txdb <- makeTxDbFromGRanges(gr)
+
+## save the TxDb into a ".sqlite" database file
+## so that it can be made available to other users
+p2f <- paste0("results/make_TxDb_IGGP8X_Genoscope/",
+              "TxDb_Vvinifera_IGGP8X_Genoscope.sqlite")
+saveDb(x=txdb, file=p2f)
+
+## load the TxDb
+txdb <- loadDb(file=p2f)
+
+## have a look at the resource
+txdb
+length(genes(txdb)) # 30434
+length(transcripts(txdb)) # 30434
+length(exons(txdb)) # 149351
+length(cds(txdb)) # 149351

@@ -277,14 +277,14 @@ zcat data/cribi/V2/V2.1/V2.1.gff3.gz | cut -f3 | sort | uniq -c | wc -l # 6 type
 zcat data/cribi/V2/V2.1/V2.1.gff3.gz | awk -F "\t" '{split($9,a,";"); for(i in a){split(a[i],b,"="); print b[1]}}' | sort | uniq -c # ID Name Parent
 #+end_src
 
-| type            |  count |
-|-----------------+--------|
-| gene            |  31845 |
-| mRNA            |  55564 |
-| exon            | 321050 |
-| five_prime_utr  |  58389 |
-| CDS             | 297312 |
-| three_prime_utr |  56784 |
+| type              |  count |
+|-------------------+--------|
+| =gene=            |  31845 |
+| =mRNA=            |  55564 |
+| =exon=            | 321050 |
+| =five_prime_utr=  |  58389 |
+| =CDS=             | 297312 |
+| =three_prime_utr= |  56784 |
 
 *** By NCBI (8x and 12x.0)
 The NCBI annotated the 8x and 12x.0 assemblies with the GNOMON software.
@@ -879,9 +879,9 @@ zcat Vitis_vinifera_annotation.gff3.gz \
 
 Convert the GFF3 to GRanges (R/Bioconductor objects): see =src/vitisomics.R=.
 
-TODO: The resource is sent to Valerie Obenchain from Bioconductor (=valerie.obenchain@roswellpark.org=, as advised by Hervé Pagès).
+The resource is sent to Valerie Obenchain from Bioconductor (=valerie.obenchain@roswellpark.org=, as advised by Hervé Pagès).
 
-TODO: The resource is available via the AnnotationHub as of ...
+The resource is available via the AnnotationHub as of June 6, 2016.
 
 *** TxDb on IGGP8X from Genoscope
 Set up the directory:
@@ -909,9 +909,9 @@ zcat Vitis_vinifera_annotation_v1.gff3.gz \
 
 Convert the GFF3 to GRanges (R/Bioconductor objects): see =src/vitisomics.R=.
 
-TODO: The resource is sent to Valerie Obenchain from Bioconductor (=valerie.obenchain@roswellpark.org=, as advised by Hervé Pagès).
+The resource is sent to Valerie Obenchain from Bioconductor (=valerie.obenchain@roswellpark.org=, as advised by Hervé Pagès).
 
-TODO: The resource is available via the AnnotationHub as of ...
+The resource is available via the AnnotationHub as of June 6, 2016.
 
 *** TxDb on IGGP12Xv0 from NCBI
 TODO: see the "Making New Organism Packages" vignette from the R/Bioconductor package "AnnotationForge"
