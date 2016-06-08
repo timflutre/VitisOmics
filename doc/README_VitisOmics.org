@@ -842,9 +842,9 @@ tar -xzOf ../../data/cribi/Genome12X.tar.gz | awk 'BEGIN{RS=">"} {split($0,a,"\n
 
 Concatenate the annotations below, using =chrUkn= as was done for the BSgenome packages:
 #+begin_src sh
-zcat ../../data/cribi/V2/V2.1/V2.1.gff3.gz \
-  | sed 's/chrUn/chrUkn/g' >> V2.1_updated.gff3
-gzip V2.1_updated.gff3
+zcat ../../data/cribi/V2/V2.1/V2.1.gff3.gz >> V2.1_updated.gff3
+sed 's/chrUn/chrUkn/g' V2.1_updated.gff3 | gzip > V2.1_updated.gff3.gz
+rm V2.1_updated.gff3
 #+end_src
 
 Convert the GFF3 to GRanges (R/Bioconductor objects): see =src/vitisomics.R=.
@@ -852,8 +852,6 @@ Convert the GFF3 to GRanges (R/Bioconductor objects): see =src/vitisomics.R=.
 The resource is sent to Valerie Obenchain from Bioconductor (=valerie.obenchain@roswellpark.org=, as advised by Hervé Pagès).
 
 The resource is available via the AnnotationHub as of May 26, 2016.
-
-TODO: check =sequenceRegionsAsSeqinfo=TRUE= in =import.gff=
 
 *** TxDb on IGGP12Xv0 from Genoscope
 Set up the directory:
@@ -896,8 +894,8 @@ cd make_TxDb_IGGP8X_Genoscope/
 Convert the input GFF2 file into GFF3 (ignore UTRs):
 #+begin_src sh
 ln -s ../../data/genoscope/8X/annotation/Vitis_vinifera_annotation_v1.gff.gz .
-ln -s ../urgi/VITVI_PN40024_8x_chroms_URGI.fa.gz .
 zcat Vitis_vinifera_annotation_v1.gff.gz | grep -v "##" | wc -l # 234890
+ln -s ../urgi/VITVI_PN40024_8x_chroms_URGI.fa.gz .
 echo "../../src/genoscope_gff2_to_gff3.py --gff2 Vitis_vinifera_annotation_v1.gff.gz --fa VITVI_PN40024_8x_chroms_URGI.fa.gz --gff3 Vitis_vinifera_annotation_v1.gff3.gz" \
   | qsub -cwd -j y -V -N stdout_genoscope_gff2_to_gff3 -q normal.q
 zcat Vitis_vinifera_annotation_v1.gff3.gz | grep -v "##" | wc -l # 210219
@@ -915,7 +913,7 @@ TODO: The resource is sent to Valerie Obenchain from Bioconductor (=valerie.oben
 
 TODO: The resource is available via the AnnotationHub as of ...
 
-*** AnnotationHub resource on IGGP12Xv0 from NCBI
+*** TxDb on IGGP12Xv0 from NCBI
 TODO: see the "Making New Organism Packages" vignette from the R/Bioconductor package "AnnotationForge"
 
 See also the new genbank package from Bioc http://www.bioconductor.org/packages/release/bioc/html/genbankr.html
