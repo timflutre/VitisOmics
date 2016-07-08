@@ -68,7 +68,7 @@ About genome annotations:
 mkdir -p data; cd data/
 #+end_src
 
-TODO: retrieve genome data from other cultivars than PN40024, e.g. Sultanina
+TODO: retrieve whole genome data from other cultivars than PN40024, e.g. Sultanina, Cabernet-Sauvignon, etc
 
 ** URGI
 - https://urgi.versailles.inra.fr/Species/Vitis
@@ -296,6 +296,39 @@ TODO: convert NCBI annotation files from =gbs= into =gff3= (see work in progress
 mkdir -p urgi; cd urgi/
 #+end_src
 
+*** Reformat sequence headers for =VITVI_PN40024_8x_scaffolds_EMBL_r98=
+Launch script:
+#+begin_src sh
+ln -s ../../data/urgi/VV_8X_embl_98_Scaffolds.fsa.gz .
+echo "../../src/reformat_VV_8X_embl_98_Scaffolds.bash" \
+  | qsub -cwd -j y -V -N reformat_VV_8X_embl_98_Scaffolds -q normal.q
+#+end_src
+
+Check:
+#+begin_src sh
+zcat VV_8X_embl_98_Scaffolds.fsa.gz | wc -l # 8127179
+zcat VV_8X_embl_98_Scaffolds.fsa.gz | grep -c ">" # 3514
+zcat VITVI_PN40024_8x_scaffolds_EMBL_r98.fa.gz | wc -l # 8127179
+zcat VITVI_PN40024_8x_scaffolds_EMBL_r98.fa.gz | grep -c ">" # 3514
+diff <(zcat VV_8X_embl_98_Scaffolds.fsa.gz) <(zcat VITVI_PN40024_8x_scaffolds_EMBL_r98.fa.gz)
+#+end_src
+
+Only the headers differ, not the sequences, so everything is fine.
+
+Basic stats:
+#+begin_src sh
+zcat VITVI_PN40024_8x_scaffolds_EMBL_r98.fa.gz | md5sum # 621197f19fee4a34e2f106ab5e6a485a
+#+end_src
+
+Length of each sequence:
+#+begin_src sh
+zcat VITVI_PN40024_8x_scaffolds_EMBL_r98.fa.gz \
+  | awk 'BEGIN{RS=">"} {split($0,a,"\n"); 
+if(length(a)==0)next; 
+sum=0; for(i=2;i<=length(a);++i){sum+=length(a[i])}; 
+print a[1]": "sum; sumTot+=sum} END{print sumTot}'
+#+end_src
+
 *** Reformat sequence headers for =VITVI_PN40024_8x_chroms_URGI=
 Launch script:
 #+begin_src sh
@@ -324,49 +357,49 @@ Length of each sequence:
 #+begin_src sh
 zcat VITVI_PN40024_8x_chroms_URGI.fa.gz \
   | awk 'BEGIN{RS=">"} {split($0,a,"\n"); 
-if(length(a)==0)next; 
+if(length(a)==0)next; split(a,b," ");
 sum=0; for(i=2;i<=length(a);++i){sum+=length(a[i])}; 
-print a[1]": "sum; sumTot+=sum} END{print sumTot}'
+print b[1]": "sum; sumTot+=sum} END{print sumTot}'
 #+end_src
 
-| header                                                                                 | length (bp) |
-|----------------------------------------------------------------------------------------+-------------|
-| chr1 CU462738\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_1   |    15630816 |
-| chr10 CU462747\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_10 |     9647040 |
-| chr10_random                                                                           |     2206354 |
-| chr11 CU462748\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_11 |    13936303 |
-| chr11_random                                                                           |     1958407 |
-| chr12 CU462749\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_12 |    18540817 |
-| chr12_random                                                                           |     2826407 |
-| chr13 CU462750\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_13 |    15191948 |
-| chr13_random                                                                           |     1580403 |
-| chr14 CU462751\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_14 |    19480434 |
-| chr14_random                                                                           |     5432426 |
-| chr15 CU462752\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_15 |     7693613 |
-| chr15_random                                                                           |     4297576 |
-| chr16 CU462753\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_16 |     8158851 |
-| chr16_random                                                                           |     4524411 |
-| chr17 CU462754\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_17 |    13059092 |
-| chr17_random                                                                           |     1763011 |
-| chr18 CU462755\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_18 |    19691255 |
-| chr18_random                                                                           |     5949186 |
-| chr19 CU462756\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_19 |    14071813 |
-| chr19_random                                                                           |     1912523 |
-| chr1_random                                                                            |     5496190 |
-| chr2 CU462739\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_2   |    17603400 |
-| chr2_random                                                                            |       60809 |
-| chr3 CU462740\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_3   |    10186927 |
-| chr3_random                                                                            |     1343266 |
-| chr4 CU462741\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_4   |    19293076 |
-| chr5 CU462742\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_5   |    23428299 |
-| chr6 CU462743\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_6   |    24148918 |
-| chr7 CU462744\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_7   |    15233747 |
-| chr7_random                                                                            |      176143 |
-| chr8 CU462745\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_8   |    21557227 |
-| chr8_random                                                                            |       12125 |
-| chr9 CU462746\vert{}Vitis vinifera\vert{}PN40024\vert{}assembly8x\vert{}chromosome_9   |    16532244 |
-| chrUn_random                                                                           |   154883714 |
-| total                                                                                  |   497508771 |
+| header       | length (bp) |
+|--------------+-------------|
+| chr1         |    15630816 |
+| chr10        |     9647040 |
+| chr10_random |     2206354 |
+| chr11        |    13936303 |
+| chr11_random |     1958407 |
+| chr12        |    18540817 |
+| chr12_random |     2826407 |
+| chr13        |    15191948 |
+| chr13_random |     1580403 |
+| chr14        |    19480434 |
+| chr14_random |     5432426 |
+| chr15        |     7693613 |
+| chr15_random |     4297576 |
+| chr16        |     8158851 |
+| chr16_random |     4524411 |
+| chr17        |    13059092 |
+| chr17_random |     1763011 |
+| chr18        |    19691255 |
+| chr18_random |     5949186 |
+| chr19        |    14071813 |
+| chr19_random |     1912523 |
+| chr1_random  |     5496190 |
+| chr2         |    17603400 |
+| chr2_random  |       60809 |
+| chr3         |    10186927 |
+| chr3_random  |     1343266 |
+| chr4         |    19293076 |
+| chr5         |    23428299 |
+| chr6         |    24148918 |
+| chr7         |    15233747 |
+| chr7_random  |      176143 |
+| chr8         |    21557227 |
+| chr8_random  |       12125 |
+| chr9         |    16532244 |
+| chrUn_random |   154883714 |
+| total        |   497508771 |
 
 *** Reformat sequence headers for =VITVI_PN40024_12x_v0_scaffolds_EMBL_r102=
 Launch script:
@@ -417,6 +450,52 @@ Basic stats:
 zcat VITVI_PN40024_12x_v0_chroms_URGI.fa.gz | md5sum # eff315994fafe35333462b9595e10ce5
 #+end_src
 
+Length of each sequence:
+#+begin_src sh
+zcat VITVI_PN40024_12x_v0_chroms_URGI.fa.gz \
+  | awk 'BEGIN{RS=">"} {split($0,a,"\n"); 
+if(length(a)==0)next; split(a[1],b," ");
+sum=0; for(i=2;i<=length(a);++i){sum+=length(a[i])}; 
+print b[1]": "sum; sumTot+=sum} END{print sumTot}'
+#+end_src
+
+| header       | length (bp) |
+|--------------+-------------|
+| chr1         |    23037639 |
+| chr1_random  |      568933 |
+| chr2         |    18779844 |
+| chr3         |    19341862 |
+| chr3_random  |     1220746 |
+| chr4         |    23867706 |
+| chr4_random  |       76237 |
+| chr5         |    25021643 |
+| chr5_random  |      421237 |
+| chr6         |    21508407 |
+| chr7         |    21026613 |
+| chr7_random  |     1447032 |
+| chr8         |    22385789 |
+| chr9         |    23006712 |
+| chr9_random  |      487831 |
+| chr10        |    18140952 |
+| chr10_random |      789605 |
+| chr11        |    19818926 |
+| chr11_random |      282498 |
+| chr12        |    22702307 |
+| chr12_random |     1566225 |
+| chr13        |    24396255 |
+| chr13_random |     3268264 |
+| chr14        |    30274277 |
+| chr15        |    20304914 |
+| chr16        |    22053297 |
+| chr16_random |      740079 |
+| chr17        |    17126926 |
+| chr17_random |      829735 |
+| chr18        |    29360087 |
+| chr18_random |     5170003 |
+| chr19        |    24021853 |
+| chrUn        |    43154196 |
+| total        |   486198630 |
+
 *** Reformat sequence headers for =VITVI_PN40024_12x_v2_chroms_URGI=
 Launch script:
 #+begin_src sh
@@ -445,34 +524,34 @@ Length of each sequence:
 #+begin_src sh
 zcat VITVI_PN40024_12x_v2_chroms_URGI.fa.gz \
   | awk 'BEGIN{RS=">"} {split($0,a,"\n"); 
-if(length(a)==0)next; 
+if(length(a)==0)next; split(a,b," ");
 sum=0; for(i=2;i<=length(a);++i){sum+=length(a[i])}; 
-print a[1]": "sum; sumTot+=sum} END{print sumTot}'
+print b[1]": "sum; sumTot+=sum} END{print sumTot}'
 #+end_src
 
-| header                                                  | length (bp) |
-|---------------------------------------------------------+-------------|
-| chr1 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    24233538 |
-| chr2 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    18891843 |
-| chr3 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    20695524 |
-| chr4 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    24711646 |
-| chr5 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    25650743 |
-| chr6 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    22645733 |
-| chr7 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    27355740 |
-| chr8 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    22550362 |
-| chr9 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2   |    23006712 |
-| chr10 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    23503040 |
-| chr11 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    20118820 |
-| chr12 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    24269032 |
-| chr13 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    29075116 |
-| chr14 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    30274277 |
-| chr15 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    20304914 |
-| chr16 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    23572818 |
-| chr17 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    18691847 |
-| chr18 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    34568450 |
-| chr19 Vitis vinifera\vert{}PN40024\vert{}assembly12x.2  |    24695667 |
-| chrUkn Vitis vinifera\vert{}PN40024\vert{}assembly12x.2 |    27389308 |
-| total                                                   |   486205130 |
+| header | length (bp) |
+|--------+-------------|
+| chr1   |    24233538 |
+| chr2   |    18891843 |
+| chr3   |    20695524 |
+| chr4   |    24711646 |
+| chr5   |    25650743 |
+| chr6   |    22645733 |
+| chr7   |    27355740 |
+| chr8   |    22550362 |
+| chr9   |    23006712 |
+| chr10  |    23503040 |
+| chr11  |    20118820 |
+| chr12  |    24269032 |
+| chr13  |    29075116 |
+| chr14  |    30274277 |
+| chr15  |    20304914 |
+| chr16  |    23572818 |
+| chr17  |    18691847 |
+| chr18  |    34568450 |
+| chr19  |    24695667 |
+| chrUkn |    27389308 |
+| total  |   486205130 |
 
 *** Format =VITVI_PN40024_8x_chroms_URGI= for BLAST
 Launch:
@@ -917,3 +996,39 @@ The resource is available via the AnnotationHub as of June 6, 2016.
 TODO: see the "Making New Organism Packages" vignette from the R/Bioconductor package "AnnotationForge"
 
 See also the new genbank package from Bioc http://www.bioconductor.org/packages/release/bioc/html/genbankr.html
+
+** Whole genome alignments
+- [[http://mummer.sourceforge.net/][MUMmer]] is an appropriate software for this kind of analyzes
+- as a recent example, see [[http://genomebiology.biomedcentral.com/articles/10.1186/s13059-014-0506-z][Schatz et al (2014)]] who compared the genome of 3 rice varieties
+
+*** 12x scaffolds on 12x0 chrs
+Run chr by chr to avoid memory shortage:
+#+begin_src sh
+cd results/mummer_ref-12x-chrs_qry-12x-scaffs
+ln -s ../urgi/VITVI_PN40024_12x_v0_chroms_URGI.fa.gz .
+zcat ../urgi/VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa.gz > VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa
+chr=$(zcat VITVI_PN40024_12x_v0_chroms_URGI.fa | grep ">" | awk '{sub(">","",$1); print $1}' | head -1)
+zcat VITVI_PN40024_12x_v0_chroms_URGI.fa.gz | awk 'BEGIN{RS=">"} /^'${chr}' /{print ">" $0}' > VITVI_PN40024_12x_v0_${chr}_URGI.fa
+cmdNm="nucmer -maxmatch -p out-nucmer_${chr} VITVI_PN40024_12x_v0_${chr}_URGI.fa VITVI_PN40024_12x_v0_scaffolds_EMBL_r102.fa"
+cmdDf="delta-filter -l 10000 -q out-nucmer_${chr}.delta > out-nucmer_${chr}_filter.delta"
+cmdPl="mummerplot -postscript --filter -p out-nucmer_${chr}_filter -title ref-12x0-${chr}_qry-12x-scaff out-nucmer_${chr}_filter.delta"
+cmdSc="show-coords -c -l -L 10000 -r -T out-nucmer_${chr}_filter.delta | gzip > out-nucmer_${chr}_filter_coords.txt.gz"
+echo ${cmdNm}"; "${cmdDf}"; "${cmdPl}"; "${cmdSc} | qsub -cwd -j y -V -N stdout_mummer_${chr} -q normal.q
+#+end_src
+
+*** 8x scaffolds on 12x0 chrs
+Run chr by chr to avoid memory shortage:
+#+begin_src sh
+cd results/mummer_ref-12x-chrs_qry-8x-scaffs
+ln -s ../urgi/VITVI_PN40024_12x_v0_chroms_URGI.fa.gz .
+zcat ../urgi/VITVI_PN40024_8x_scaffolds_EMBL_r98.fa.gz > VITVI_PN40024_8x_scaffolds_EMBL_r98.fa
+chr=$(zcat VITVI_PN40024_12x_v0_chroms_URGI.fa | grep ">" | awk '{sub(">","",$1); print $1}' | head -1)
+zcat VITVI_PN40024_12x_v0_chroms_URGI.fa.gz | awk 'BEGIN{RS=">"} /^'${chr}' /{print ">" $0}' > VITVI_PN40024_12x_v0_${chr}_URGI.fa
+cmdNm="nucmer -maxmatch -p out-nucmer_${chr} VITVI_PN40024_12x_v0_${chr}_URGI.fa VITVI_PN40024_8x_scaffolds_EMBL_r98.fa"
+cmdDf="delta-filter -l 10000 -q out-nucmer_${chr}.delta > out-nucmer_${chr}_filter.delta"
+cmdPl="mummerplot -postscript --filter -p out-nucmer_${chr}_filter -title ref-12x0-${chr}_qry-8x-scaff out-nucmer_${chr}_filter.delta"
+cmdSc="show-coords -c -l -L 10000 -r -T out-nucmer_${chr}_filter.delta | gzip > out-nucmer_${chr}_filter_coords.txt.gz"
+echo ${cmdNm}"; "${cmdDf}"; "${cmdPl}"; "${cmdSc} | qsub -cwd -j y -V -N stdout_mummer_${chr} -q normal.q
+#+end_src
+*** PN40024-12x2 vs CabSauv-PacBio
+TODO
