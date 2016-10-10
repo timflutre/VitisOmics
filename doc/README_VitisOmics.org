@@ -642,10 +642,14 @@ See the corresponding task in the script =src/vitisomics.R=.
 Note that, as of January 2016, even though at least [[http://dx.doi.org/10.1186/s12870-015-0510-9][two]] [[http://dx.doi.org/10.1186/s12870-015-0588-0][articles]] were published which used this genotyping array, the data are not (yet?) part of [[http://www.ncbi.nlm.nih.gov/projects/SNP/][dbSNP]] nor [[https://www.ebi.ac.uk/eva/][EVA]], unfortunately.
 Therefore, no unambiguous SNP identifiers exist which can be used across studies and genome assemblies.
 
+The SNP density can be plotted along the chromosomes (see task in =src/vitisomics.R=).
+Note the lack of SNPs along one arm of =chr9=.
+
 *** Align Illumina probes on PN40024 assemblies
-Requires the =VITVI_PN40024_12x_v0_chroms_URGI.fa.gz= bank to be formatted for BLAST (see above).
+Requires the fasta banks to be formatted for BLAST (see above):
 #+begin_src sh
 echo "zcat GrapeReSeq_Illumina_18K_SNP_vinifera_probes.fa.gz | blastn -query - -task megablast -db VITVI_PN40024_12x_v0_chroms_URGI -out /dev/stdout -outfmt 6 | gzip > Ill18Kprobes-vinifera_12x0-chroms_megablast.txt.gz" | qsub -cwd -j y -V -q normal.q -N blastn-megablast_Ill18Kprobes-vinifera_12x0-chroms
+echo "zcat GrapeReSeq_Illumina_18K_SNP_vinifera_probes.fa.gz | blastn -query - -task megablast -db VITVI_PN40024_12x_v2_chroms_URGI -out /dev/stdout -outfmt 6 | gzip > Ill18Kprobes-vinifera_12x2-chroms_megablast.txt.gz" | qsub -cwd -j y -V -q normal.q -N blastn-megablast_Ill18Kprobes-vinifera_12x2-chroms
 #+end_src
 
 The alignments are analyzed in the corresponding task in the script =src/vitisomics.R=.
@@ -726,7 +730,7 @@ Check that there is one =LOCUS= entry per scaffold:
 ls ../../data/ncbi/ARCHIVE/BUILD.1.1/CHRS/vvi_ref_chr*.gbs.gz | grep -v "Pltd" | while read f; do zcat $f; done | grep -c "LOCUS" # 3514
 #+end_src
 
-Use the [[https://github.com/bioperl/bioperl-live/blob/master/scripts/Bio-DB-GFF/bp_genbank2gff3.pl][bp_genbank2gff3.pl]] script from [[http://www.bioperl.org/wiki/Main_Page][BioPerl]]:
+Use the =bp_genbank2gff3.pl= script from [[https://github.com/bioperl/bioperl-live/blob/master/scripts/Bio-DB-GFF/bp_genba=nk2gff3.pl][BioPerl]]:
 #+begin_src sh
 zcat ../../../data/ncbi/ARCHIVE/BUILD.1.1/CHRS/vvi_ref_chr1.gbs.gz | bp_genbank2gff3.pl -in stdin -out stdout | gzip > vvi_ref_chr1.gff3.gz
 # Error::throw
@@ -736,7 +740,7 @@ zcat ../../../data/ncbi/ARCHIVE/BUILD.1.1/CHRS/vvi_ref_chr1.gbs.gz | bp_genbank2
 # /usr/local/bin/bp_genbank2gff3.pl:504
 #+end_src
 
-Use the [[https://github.com/jorvis/biocode/blob/master/gff/convert_genbank_to_gff3.py][convert_genbank_to_gff3.py]] script from [[https://github.com/jorvis/biocode][biocode]]:
+Use the =convert_genbank_to_gff3.py= script from [[https://github.com/jorvis/biocode/blob/master/gff/convert_genbank_to_gff3.py][biocode]]:
 #+begin_src sh
 zcat ../../data/ncbi/ARCHIVE/BUILD.1.1/CHRS/vvi_ref_chr1.gbs.gz > vvi_ref_8x_chr1.gbs
 convert_genbank_to_gff3.py -i vvi_ref_8x_chr1.gbs -o vvi_ref_8x_chr1.gff3 --no_fasta

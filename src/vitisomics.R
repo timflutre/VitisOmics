@@ -216,21 +216,62 @@ out.file <- "results/urgi/GrapeReSeq_Illumina_18K_SNP_array.txt.gz"
 write.table(dat, gzfile(out.file), quote=FALSE, sep="\t", row.names=FALSE)
 
 ## ---------------------------------------------------------------------------
-## task: check the coordinates of the Illumina SNP array probes
+## task: plot SNP density along 12x0 chromosomes from Illumina 18k array
 
-## load alignments of "vinifera" probes on 12x0 with megablast
-f <- "results/urgi/Ill18Kprobes-vinifera_12x0-chroms_megablast.txt.gz"
+library(ggbio)
+
+## load info about the SNPs
+f <- "results/urgi/GrapeReSeq_Illumina_18K_SNP_array.txt.gz"
+dat <- read.table(f, header=TRUE, sep="\t", stringsAsFactors=FALSE)
+str(dat) # 18071 x 24
+
+## keep only "vinifera" SNPs on non-random chromosomes
+dat <- dat[dat$Source != "URGI",]
+nrow(dat) # 13562
+table(dat$Chromosome)
+dat <- dat[! grepl("random", dat$Chromosome),]
+dat <- dat[! grepl("chrUn", dat$Chromosome),]
+dat <- dat[! grepl("Pltd", dat$Chromosome),]
+nrow(dat) # 11853
+
+## get "seqinfo" from 12x0
+library(BSgenome.Vvinifera.URGI.IGGP12Xv0)
+seqinfo12x0 <- seqinfo(BSgenome.Vvinifera.URGI.IGGP12Xv0)
+
+## convert SNP coords into GRanges
+gr <- GRanges(seqnames=Rle(dat$Chromosome),
+              ranges=IRanges(start=dat$Coordinate, end=dat$Coordinate),
+              strand=rep("*", nrow(dat)),
+              seqinfo=seqinfo12x0)
+seqlevels(gr) <- seqlevelsInUse(gr)
+gr
+seqlevels(seqinfo12x0) <- seqlevels(gr)
+
+## plot the karyogram with the SNP density
+autoplot(seqinfo12x0, layout="karyogram", main="Karyogram of Vitis vinifera L.")
+
+## plot the SNP density over the karyogram
+autoplot(gr, layout="karyogram",
+         main=paste0("SNP density (", length(gr), " SNPs"))
+
+## ---------------------------------------------------------------------------
+## task: check the alignment coordinates of the Illumina SNP array probes
+
+## load alignments of "vinifera" probes with megablast
+min.ver <- 2
+f <- paste0("results/urgi/Ill18Kprobes-vinifera_12x", min.ver,
+            "-chroms_megablast.txt.gz")
 alns <- read.table(f, col.names=c("qseqid", "sseqid", "pident", "length",
                                   "mismatch", "gapopen", "qstart", "qend",
                                   "sstart", "send", "evalue", "bitscore"),
                    stringsAsFactors=FALSE)
-nrow(alns) # 15357
+nrow(alns) # min.ver=0: 15357 ; min.ver=2: 15358
 
 ## some probes have multiple alignments (keep the best)
-anyDuplicated(alns$qseqid) # 40
+anyDuplicated(alns$qseqid) # 40 for both
 alns <- alns[! duplicated(alns$qseqid),]
-summary(alns$pident) # min=89 q1=99 med=99 mean=99 q3=100 max=100
-summary(alns$length) # min=62 q1=101 med=101 mean=102 q3=101 max=628
+summary(alns$pident) # min.ver=0: min=89 q1=99 med=99 mean=99 q3=100 max=100
+summary(alns$length) # min.ver=0: min=62 q1=101 med=101 mean=102 q3=101 max=628
 
 ## load info about "vinifera" probes
 f <- "results/urgi/GrapeReSeq_Illumina_18K_SNP_array.txt.gz"
@@ -240,7 +281,7 @@ nrow(dat) # 13562
 summary(sapply(dat$Sequence.valid, nchar)) # min=84 q1=101 med=101 mean=102 q3=101 max=628
 
 ## some probes don't have any alignment
-sum(! dat$Locus_Name %in% alns$qseqid) # 33
+sum(! dat$Locus_Name %in% alns$qseqid) # 33 for both
 
 ## check alignment coordinates
 alns <- alns[order(alns$qseqid),]
@@ -255,15 +296,16 @@ dat2$aln.len <- alns$length
 ## some probes are aligned on different chromosomes than indicated
 ## most of them are said to belong to plastid genomes
 ## they were all designed by the ICVV
-sum(dat2$aln.sseqid != dat2$Chromosome) # 24
-dat2[dat2$aln.sseqid != dat2$Chromosome, -grep("Sequence",colnames(dat2))]
+sum(dat2$aln.sseqid != dat2$Chromosome) # min.ver=0: 24 ; min.ver=2: 1723 ("random" chr...)
+head(dat2[dat2$aln.sseqid != dat2$Chromosome, -grep("Sequence",colnames(dat2))])
 
 ## among the probes aligned on the indicated chromosome, the indicated SNP
 ## coordinate is inside the alignment boundaries for all of them
 sum(dat2[dat2$aln.sseqid == dat2$Chromosome, "aln.sstart"] >=
     dat2[dat2$aln.sseqid == dat2$Chromosome, "Coordinate"] ||
     dat2[dat2$aln.sseqid == dat2$Chromosome, "aln.send"] <=
-    dat2[dat2$aln.sseqid == dat2$Chromosome, "Coordinate"]) # 0
+    dat2[dat2$aln.sseqid == dat2$Chromosome, "Coordinate"])
+## min.ver=0: 0 ; min.ver=2: 1
 
 ## ---------------------------------------------------------------------------
 ## task: make TxDb on IGGP12Xv0 from CRIBI (V2.1)
