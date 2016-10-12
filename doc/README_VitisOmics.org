@@ -37,16 +37,18 @@ cd ..; tar -czvf VitisOmics.tar.gz \
 
 In order to concretely promote collaborative editing in a distributed manner, the content of the "VitisOmics" repository should be based on [[https://en.wikipedia.org/wiki/Plain_text][plain text]] files.
 As a consequence, this document is written in the [[http://orgmode.org/][org]] format, and can thus be automatically exported, best by [[https://www.gnu.org/software/emacs/][emacs]], but also by [[http://pandoc.org/][pandoc]], into the pdf and html formats for easy reading.
-A choice is also made to use as much as possible softwares widely available on any GNU/Linux computer, such as bash, awk, etc, but of course it may sometimes be much easier to use R (with [[http://www.bioconductor.org/][Bioconductor]]), Python (with [[http://biopython.org/][Biopython]]), etc.
+A choice is also made to use as much as possible softwares widely available on any GNU/Linux computer, such as bash, awk, etc, but of course it may sometimes be much easier to use R (with [[http://www.bioconductor.org/][Bioconductor]]), Python (with [[http://biopython.org/][Biopython]]), Perl (with [[http://bioperl.org/][Bioperl]]), etc.
 
 Last but not least, feel free to contribute, by reporting [[https://github.com/timflutre/VitisOmics/issues][issues]] or forking the repository!
 
 ** Contributors
 
-The person roles comply with R's guidelines (The R Journal Vol. 4/1, June 2012).
+The person roles comply with R's guidelines ([[https://journal.r-project.org/archive/2012-1/RJournal_2012-1.pdf#page=64][The R Journal Vol. 4/1, June 2012]]).
 
 - Timothée Flutre (cre,aut)
 - Gautier Sarah (ctb)
+- Camille Rustenholz (aut)
+- Nacer Nohellibi (ctb)
 - ...
 
 ** References
@@ -110,6 +112,8 @@ N. Choisne from URGI on the 18K SNP chip (personal communication, 09/02/2016): l
 - probe sequence =TTGTCTACGAAGTTTGACAATTTCTATTTTTCATAAGTTTACACAAATTA[T/C]TGAACAGTGAGTTAGTGACCATAATCAATGATATGTGGTTTAATGTCACT=;
 - SNPs on the 18K Illumina Infinium microarray are named so that the first allele (here, =C=) corresponds to the reference (PN40024 12x.0) and the second allele (here, =T=) to the variant (almost sure for the "species" SNPs and should also be the case for the "vinifera" SNPs);
 - in the sequence, the fact that the =T= comes before the =C= only reflects the fact that the chip is an Infinium II, with 2 beads, only allowing loci =A/G=, =A/C=, =T/G=, =T/C=, whereas the Infinium I only allows =A/T= et =C/G=.
+
+The script also downloads the file with scaffold positions to transfer annotations from 12x0 to 12x2.
 
 ** NCBI
 - http://www.ncbi.nlm.nih.gov/genome/401
@@ -655,6 +659,18 @@ echo "zcat GrapeReSeq_Illumina_18K_SNP_vinifera_probes.fa.gz | blastn -query - -
 The alignments are analyzed in the corresponding task in the script =src/vitisomics.R=.
 
 Among the 13562 "vinifera" probes, 33 are not aligned on the 12x0 assembly of the PN40024 genome, 24 are aligned on different chromosomes than indicated (mostly plastid genomes), and all the others look fine.
+
+*** Transfer annotations from 12x0 to 12x2
+Camille Rustenholz (Inra Colmar) wrote a Perl script to transfer the genomic coordinates of structural annotations (or any genomic features described in a GFF3 file) from the =VITVI_PN40024_12x_v0= assembly to the =VITVI_PN40024_12x_v2= assembly.
+A few changes were made by Nacer Nohellibi (Inra Versailles).
+
+The script is available at URGI (see [[https://urgi.versailles.inra.fr/files/Vini/remappingTool4VitisOmics/README][here]]) as well as in this repo: =src/transferAnnot_from_Vitis_12X_V0_to_V2.pl=.
+It requires a specific file with the position of each scaffold on the chromosomes, which can be downloaded via =src/download_urgi.bash=.
+
+Usage:
+#+begin_src sh
+transferAnnot_from_Vitis_12X_V0_to_V2.pl -p Position_scaffolds_V1_V2_verbose.txt -a Vitis_vinifera_annotation.gff -o Vitis_vinifera_annotation_12X.2.gff
+#+end_src
 
 ** Manipulations of files from NCBI
 #+begin_src sh

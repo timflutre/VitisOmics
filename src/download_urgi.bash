@@ -100,3 +100,6 @@ echo "Illumina Infinium chip (GrapeReSeq, 18K)"
 wget --timestamping https://urgi.versailles.inra.fr/content/download/2688/23435/file/GrapeReSeq_SNP%20Table_all_180413.xlsx
 wget --timestamping https://urgi.versailles.inra.fr/content/download/2689/23439/file/GrapeReSeq_CF-EPGV-v2b.egt
 wget --timestamping https://urgi.versailles.inra.fr/content/download/2465/21587/file/GrapeReSeq_Illumina_20K_SNP_chip.xls
+
+echo "file with scaffold positions to transfer annotations from 12x0 to 12x2"
+wget --timestamping https://urgi.versailles.inra.fr/files/Vini/remappingTool4VitisOmics/Position_scaffolds_V1_V2_verbose.txt
