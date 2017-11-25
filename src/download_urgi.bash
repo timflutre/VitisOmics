@@ -103,3 +103,17 @@ wget --timestamping https://urgi.versailles.inra.fr/content/download/2465/21587/
 
 echo "file with scaffold positions to transfer annotations from 12x0 to 12x2"
 wget --timestamping https://urgi.versailles.inra.fr/files/Vini/remappingTool4VitisOmics/Position_scaffolds_V1_V2_verbose.txt
+
+echo "zip archive with the 12x2 structural annotation (VCost.v3)"
+wget --timestamping https://urgi.versailles.inra.fr/files/Vini/Vitis%2012X.2%20annotations/Vitis_vinifera_gene_annotation_on_V2_10_no_CDS.gb.zip
+wget --timestamping https://urgi.versailles.inra.fr/files/Vini/Vitis%2012X.2%20annotations/Vitis_vinifera_gene_annotation_on_V2_10.gff3.zip
+if [ $(ls -1 *.zip 2>/dev/null | wc -l) -ne 0 ]; then
+  ls *.zip | while read f; do
+    unzip $f
+    prefix=$(echo $f | sed 's/.zip//')
+    if [ ! -f "${prefix}.gz" ]; then
+      gzip $prefix
+      rm -f $f
+    fi
+  done
+fi
