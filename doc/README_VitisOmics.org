@@ -218,6 +218,22 @@ See also the script =src/vitisomics.R= using R and Bioconductor.
 It confirms that each of the 12x.0 chromosomes have the exact same sequence at URGI and CRIBI, the only differences being the headers.
 
 ** Comparisons of annotations
+*** By Canaguier et al (2017) at URGI (12x2)
+#+begin_src
+cd data/urgi
+zcat Vitis_vinifera_gene_annotation_on_V2_10.gff3.gz | md5sum # 49a5a438dc7b819f2f33609bf0454e8f
+zcat Vitis_vinifera_gene_annotation_on_V2_10.gff3.gz | cut -f3 | sort | uniq -c
+#+end_src
+
+| 235849 | CDS               |
+|      2 | cds               |
+| 203078 | exon              |
+|  42413 | gene              |
+|  48847 | mRNA              |
+|   1075 | mature_transcript |
+|    862 | ncRNA             |
+|     19 | tRNA              |
+
 *** By Genoscope and from Genoscope (8x and 12x.0)
 The Genoscope annotated the 8x and 12x.v0 assemblies with the Gaze software:
 #+begin_src sh
@@ -924,6 +940,39 @@ R CMD INSTALL BSgenome.Vvinifera.URGI.IGGP8X_0.1.tar.gz
 #+end_src
 
 The 8X package is now available [[http://bioconductor.org/packages/release/data/annotation/html/BSgenome.Vvinifera.URGI.IGGP8X.html][here]] (Bioc 3.3).
+
+*** TxDb on IGGP12Xv2 from Canaguier et al (2017)
+Article: https://doi.org/10.1016/j.gdata.2017.09.002
+
+Data: http://doi.org/10.15454/1.5009072354498936E12
+
+Set up the directory:
+#+begin_src sh
+cd results/
+mkdir -p make_TxDb_IGGP12Xv2_Canaguier2017
+cd make_TxDb_IGGP12Xv2_Canaguier2017
+#+end_src
+
+Make official GFF3 header:
+#+begin_src sh
+echo -e "##gff-version 3" > VCost.v3_updated.gff3
+zcat ../../data/urgi/12Xv2_grapevine_genome_assembly.fa.gz \
+  | awk 'BEGIN{RS=">"} {split($0,a,"\n"); if(length(a)==0) next; seqlen=0; for(i=2;i<=length(a);++i){seqlen += length(a[i])}; split(a[1],b," "); printf "##sequence-region "b[1]" 1 "seqlen"\n"}' \
+  | sort -k2,2V >> VCost.v3_updated.gff3
+#+end_src
+
+Concatenate the annotations below, using the same chromosome names as for the BSgenome packages:
+#+begin_src sh
+zcat ../../data/urgi/Vitis_vinifera_gene_annotation_on_V2_10.gff3.gz >> VCost.v3_updated.gff3
+cat VCost.v3_updated.gff3 | sed 's/chr00/chrUkn/g' | sed 's/chr0/chr/g' | gzip > VCost.v3_updated.gff3.gz
+rm VCost.v3_updated.gff3
+#+end_src
+
+Convert the GFF3 to GRanges (R/Bioconductor objects): see =src/vitisomics.R=.
+
+The resource is sent to Lori Shepherd from Bioconductor (=Lori.Shepherd@roswellpark.org=).
+
+The resource is available via the AnnotationHub as of ...
 
 *** TxDb on IGGP12Xv0 from CRIBI (V2.1)
 Set up the directory:

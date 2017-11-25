@@ -567,3 +567,100 @@ length(genes(txdb)) # 30434
 length(transcripts(txdb)) # 30434
 length(exons(txdb)) # 149351
 length(cds(txdb)) # 149351
+
+## ---------------------------------------------------------------------------
+## task: make TxDb on IGGP12Xv2 from Canaguier et al (2017) known as VCost.v3
+
+library(rtracklayer)
+
+setwd("results/make_TxDb_IGGP12Xv2_Canaguier2017")
+
+out.dir <- "input_AnnotHub_IGGP12Xv2_Canaguier2017"
+if(dir.exists(out.dir))
+  unlink(out.dir, recursive=TRUE)
+dir.create(path=out.dir)
+
+p2f <- "VCost.v3_updated.gff3.gz"
+file.copy(from=p2f, to=paste0(out.dir, "/", basename(p2f)))
+
+gr <- import.gff(con=p2f, version="3", genome="IGGP12Xv2",
+                 sequenceRegionsAsSeqinfo=TRUE)
+length(gr) # 532145
+
+p2f <- paste0(out.dir, "/GRanges.RData")
+save(gr, file=p2f)
+
+p2f <- paste0(out.dir, "/metadata.txt")
+if(file.exists(p2f))
+  file.remove(p2f)
+cat("SourceUrl: http://doi.org/10.15454/1.5009072354498936E12\n",
+    file=p2f, append=TRUE)
+cat("SourceType: gff3\n", file=p2f, append=TRUE)
+cat("SourceVersion: 3\n", file=p2f, append=TRUE)
+cat("SourceLastModifiedDate: 2017-11-17\n", file=p2f, append=TRUE)
+cat("DataProvider: URGI\n", file=p2f, append=TRUE)
+cat("Title: Vvinifera_URGI_IGGP12Xv2_V3.gff3.Rdata\n", file=p2f, append=TRUE)
+cat("Description: Gene Annotation for Vitis vinifera\n", file=p2f, append=TRUE)
+cat("Species: Vitis vinifera\n", file=p2f, append=TRUE)
+cat("TaxonomyId: 29760\n", file=p2f, append=TRUE)
+cat("Genome: IGGP12Xv2\n", file=p2f, append=TRUE)
+cat("Maintainer: Timothée Flutre timothee.flutre@inra.fr\n", file=p2f, append=TRUE)
+cat("Notes: compare to the original GFF3 file, chromosomes were slightly renamed to be compatible with the reference genome\n", file=p2f, append=TRUE)
+
+tar(tarfile=paste0(out.dir, ".tar.gz"),
+    files=out.dir, compression="gzip")
+## to be sent to Bioconductor
+
+## ---------------------------------------------------------------------------
+## task: check the TxDb on IGGP12Xv2 from Canaguier et al (2017) known as VCost.v3
+
+library(AnnotationHub)
+
+ahub <- AnnotationHub()
+"Vitis vinifera" %in% unique(ahub$species)
+
+## TODO
+
+"URGI" %in% unique(ahub$dataprovider)
+query(ahub, c("Vitis vinifera", "URGI"))
+
+## download the GRanges
+gr <- ahub[["AH50773"]]
+
+## make the TxDb
+library(GenomicFeatures)
+txdb <- makeTxDbFromGRanges(gr)
+
+## save the TxDb into a ".sqlite" database file
+## so that it can be made available to other users
+p2f <- paste0("results/make_TxDb_IGGP12Xv2_URGIv3/",
+              "TxDb_Vvinifera_IGGP12Xv2_URGIv3.sqlite")
+saveDb(x=txdb, file=p2f)
+
+## load the TxDb
+txdb <- loadDb(file=p2f)
+
+## have a look at the resource
+txdb
+length(genes(txdb)) #
+length(transcripts(txdb)) #
+length(exons(txdb)) #
+length(cds(txdb)) #
+
+## let us choose a "good-example" gene:
+## VIT_201s0011g00050: chr1, 3 mRNAs, 13 exons
+
+g <- genes(txdb)
+g["VIT_201s0011g00050"]
+
+t <- transcriptsBy(txdb, "gene")
+t["VIT_201s0011g00050"]
+
+eg <- exonsBy(txdb, "gene")
+eg["VIT_201s0011g00050"]
+
+et <- exonsBy(txdb, "tx", use.names=TRUE)
+et["VIT_201s0011g00050.2"]
+
+f <- fiveUTRsByTranscript(txdb, use.names=TRUE)
+f["VIT_201s0011g00050.2"] # note that the 5' UTR IDs from the GFF3 file are absent
