@@ -619,17 +619,18 @@ library(AnnotationHub)
 ahub <- AnnotationHub()
 "Vitis vinifera" %in% unique(ahub$species)
 
-## TODO
-
 "URGI" %in% unique(ahub$dataprovider)
 query(ahub, c("Vitis vinifera", "URGI"))
 
 ## download the GRanges
-gr <- ahub[["AH50773"]]
+gr <- ahub[["AH59992"]]
 
 ## make the TxDb
 library(GenomicFeatures)
 txdb <- makeTxDbFromGRanges(gr)
+## error: 655 CDS have a missing phase?!
+
+## TODO
 
 ## save the TxDb into a ".sqlite" database file
 ## so that it can be made available to other users

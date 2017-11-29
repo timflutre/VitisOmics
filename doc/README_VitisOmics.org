@@ -972,7 +972,8 @@ Convert the GFF3 to GRanges (R/Bioconductor objects): see =src/vitisomics.R=.
 
 The resource is sent to Lori Shepherd from Bioconductor (=Lori.Shepherd@roswellpark.org=).
 
-The resource is available via the AnnotationHub as of ...
+The resource is available via the AnnotationHub as of November 29, 2017.
+But there is a problem: 655 CDS have a missing phase (see =src/vitisomics.R=).
 
 *** TxDb on IGGP12Xv0 from CRIBI (V2.1)
 Set up the directory:
