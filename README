@@ -11,3 +11,7 @@ The copyright is owned by the INRA. See the COPYING file for usage permissions.
 The content of this directory is versioned using git, the central repository
 being hosted on GitHub:
 https://github.com/timflutre/VitisOmics
+
+The main documentation is in doc/README_VitisOmics.org. This file is in the
+"org-mode" format (http://orgmode.org/). Look at doc/Makefile to convert it
+into the HTML or PDF formats thanks to pandoc (http://pandoc.org/).
