@@ -1,5 +1,5 @@
 ## Aim: compare original files from URGI and NCBI
-## Copyright (C) 2015-2016 Institut National de la Recherche Agronomique
+## Copyright (C) 2015-2017 Institut National de la Recherche Agronomique
 ## License: GPL-3+
 ## Persons: Timothée Flutre [cre,aut]
 ## Versioning: https://github.com/timflutre/VitisOmics/src
@@ -580,7 +580,7 @@ if(dir.exists(out.dir))
   unlink(out.dir, recursive=TRUE)
 dir.create(path=out.dir)
 
-p2f <- "VCost.v3_updated.gff3.gz"
+p2f <- "VCost.v3_11.gff3.gz"
 file.copy(from=p2f, to=paste0(out.dir, "/", basename(p2f)))
 
 gr <- import.gff(con=p2f, version="3", genome="IGGP12Xv2",
@@ -597,7 +597,7 @@ cat("SourceUrl: http://doi.org/10.15454/1.5009072354498936E12\n",
     file=p2f, append=TRUE)
 cat("SourceType: gff3\n", file=p2f, append=TRUE)
 cat("SourceVersion: 3\n", file=p2f, append=TRUE)
-cat("SourceLastModifiedDate: 2017-11-17\n", file=p2f, append=TRUE)
+cat("SourceLastModifiedDate: 2017-12-14\n", file=p2f, append=TRUE)
 cat("DataProvider: URGI\n", file=p2f, append=TRUE)
 cat("Title: Vvinifera_URGI_IGGP12Xv2_V3.gff3.Rdata\n", file=p2f, append=TRUE)
 cat("Description: Gene Annotation for Vitis vinifera\n", file=p2f, append=TRUE)
@@ -609,7 +609,17 @@ cat("Notes: compare to the original GFF3 file, chromosomes were slightly renamed
 
 tar(tarfile=paste0(out.dir, ".tar.gz"),
     files=out.dir, compression="gzip")
-## to be sent to Bioconductor
+## to be sent to Bioconductor (only if the next commands have no error!)
+
+library(GenomicFeatures)
+txdb <- makeTxDbFromGRanges(gr)
+## with VCost.v3 (v10 from November 2017)
+##   error: 655 CDS have a missing phase
+## with VCost.v3 (v11 from December 2017)
+##   error: some exons are linked to transcripts not found in the file
+##   warning: the following orphan exon were dropped
+##   warning: the following orphan CDS were dropped
+##   ...
 
 ## ---------------------------------------------------------------------------
 ## task: check the TxDb on IGGP12Xv2 from Canaguier et al (2017) known as VCost.v3
@@ -628,7 +638,6 @@ gr <- ahub[["AH59992"]]
 ## make the TxDb
 library(GenomicFeatures)
 txdb <- makeTxDbFromGRanges(gr)
-## error: 655 CDS have a missing phase?!
 
 ## TODO
 
