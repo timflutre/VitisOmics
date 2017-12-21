@@ -1,0 +1,7 @@
+Please read the documentation in doc/README_VitisOmics.org.
+
+This directory should contain processed data, that is, files from the data/
+directory after being processed by scripts in the src/ directory.
+
+As these files can be rebuilt, are large and/or compressed, they should not be
+versionned!

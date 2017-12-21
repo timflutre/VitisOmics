@@ -1,0 +1,9 @@
+Please read the documentation in doc/README_VitisOmics.org.
+
+This directory should contain data from external sources, such as NCBI, EBI,
+URGI, CRIBI, etc.
+
+Such files are downloaded via bash scripts in src/.
+
+As these files are available somewhere else, are large and often compressed,
+they should not be versionned!

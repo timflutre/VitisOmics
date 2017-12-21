@@ -1,3 +1,9 @@
 *~
 *.tex
 .Rhistory
+*.html
+*.aux
+*.log
+*.out
+*.toc
+*.gz
