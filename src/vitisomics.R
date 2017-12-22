@@ -385,21 +385,22 @@ length(cds(txdb)) # 297312
 
 ## let us choose a "good-example" gene:
 ## VIT_201s0011g00050: chr1, 3 mRNAs, 13 exons
+gene.name <- "VIT_201s0011g00050"
 
 g <- genes(txdb)
-g["VIT_201s0011g00050"]
+g[gene.name]
 
 t <- transcriptsBy(txdb, "gene")
-t["VIT_201s0011g00050"]
+t[gene.name]
 
 eg <- exonsBy(txdb, "gene")
-eg["VIT_201s0011g00050"]
+eg[gene.name]
 
 et <- exonsBy(txdb, "tx", use.names=TRUE)
-et["VIT_201s0011g00050.2"]
+et[paste0(gene.name, ".2")]
 
 f <- fiveUTRsByTranscript(txdb, use.names=TRUE)
-f["VIT_201s0011g00050.2"] # note that the 5' UTR IDs from the GFF3 file are absent
+f[paste0(gene.name, ".2")] # note that the 5' UTR IDs from the GFF3 file are absent
 
 ## ---------------------------------------------------------------------------
 ## task: make TxDb on IGGP12Xv0 from Genoscope
@@ -580,12 +581,15 @@ if(dir.exists(out.dir))
   unlink(out.dir, recursive=TRUE)
 dir.create(path=out.dir)
 
-p2f <- "VCost.v3_11.gff3.gz"
+p2f <- "VCost.v3_14prep.gff3.gz"
 file.copy(from=p2f, to=paste0(out.dir, "/", basename(p2f)))
 
 gr <- import.gff(con=p2f, version="3", genome="IGGP12Xv2",
                  sequenceRegionsAsSeqinfo=TRUE)
-length(gr) # 532145
+length(gr)
+## with VCost.v3 (v10 from November 2017): 532145
+## with VCost.v3 (v11 from December 2017): 532145
+## with VCost.v3 (v14prep from December 21, 2017): 531877
 
 p2f <- paste0(out.dir, "/GRanges.RData")
 save(gr, file=p2f)
@@ -597,7 +601,7 @@ cat("SourceUrl: http://doi.org/10.15454/1.5009072354498936E12\n",
     file=p2f, append=TRUE)
 cat("SourceType: gff3\n", file=p2f, append=TRUE)
 cat("SourceVersion: 3\n", file=p2f, append=TRUE)
-cat("SourceLastModifiedDate: 2017-12-14\n", file=p2f, append=TRUE)
+cat("SourceLastModifiedDate: 2017-12-21\n", file=p2f, append=TRUE)
 cat("DataProvider: URGI\n", file=p2f, append=TRUE)
 cat("Title: Vvinifera_URGI_IGGP12Xv2_V3.gff3.Rdata\n", file=p2f, append=TRUE)
 cat("Description: Gene Annotation for Vitis vinifera\n", file=p2f, append=TRUE)
@@ -620,6 +624,11 @@ txdb <- makeTxDbFromGRanges(gr)
 ##   warning: the following orphan exon were dropped
 ##   warning: the following orphan CDS were dropped
 ##   ...
+## with VCost.v3 (v14prep from December 21, 2017)
+##   no error
+##   18 warnings: but only 2 seem to be related to the input data
+##     dropped transcripts because their exon ranks could not be inferred
+##     rejected transcripts because they have CDSs that cannot be mapped to an exon
 
 ## ---------------------------------------------------------------------------
 ## task: check the TxDb on IGGP12Xv2 from Canaguier et al (2017) known as VCost.v3
@@ -643,7 +652,7 @@ txdb <- makeTxDbFromGRanges(gr)
 
 ## save the TxDb into a ".sqlite" database file
 ## so that it can be made available to other users
-p2f <- paste0("results/make_TxDb_IGGP12Xv2_URGIv3/",
+p2f <- paste0("results/make_TxDb_IGGP12Xv2_Canaguier2017/",
               "TxDb_Vvinifera_IGGP12Xv2_URGIv3.sqlite")
 saveDb(x=txdb, file=p2f)
 
@@ -652,25 +661,27 @@ txdb <- loadDb(file=p2f)
 
 ## have a look at the resource
 txdb
-length(genes(txdb)) #
-length(transcripts(txdb)) #
-length(exons(txdb)) #
-length(cds(txdb)) #
+length(genes(txdb)) # 14prep: 42354
+length(transcripts(txdb)) # 14prep: 49359
+length(exons(txdb)) # 14prep: 200958
+length(cds(txdb)) # 14prep: 187169
 
 ## let us choose a "good-example" gene:
-## VIT_201s0011g00050: chr1, 3 mRNAs, 13 exons
+## Vitvi01g00050: chr1, 3 mRNAs, 13 exons
+gene.name <- "Vitvi01g00050"
 
 g <- genes(txdb)
-g["VIT_201s0011g00050"]
+g[gene.name]
 
 t <- transcriptsBy(txdb, "gene")
-t["VIT_201s0011g00050"]
+t[gene.name]
 
 eg <- exonsBy(txdb, "gene")
-eg["VIT_201s0011g00050"]
+eg[gene.name]
+## caution: the exon_name column is empty!
 
 et <- exonsBy(txdb, "tx", use.names=TRUE)
 et["VIT_201s0011g00050.2"]
 
 f <- fiveUTRsByTranscript(txdb, use.names=TRUE)
-f["VIT_201s0011g00050.2"] # note that the 5' UTR IDs from the GFF3 file are absent
+f["VIT_201s0011g00050.2"]
