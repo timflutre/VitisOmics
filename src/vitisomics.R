@@ -480,15 +480,16 @@ length(cds(txdb)) # 156765
 
 ## let us choose a "good-example" gene:
 ## GSVIVG01000001001: chr14, 1 mRNA, 4 CDSs, 1 UTR
+gene.name <- "GSVIVG01000001001"
 
 g <- genes(txdb)
-g["GSVIVG01000001001"]
+g[gene.name]
 
 t <- transcriptsBy(txdb, "gene")
-t["GSVIVG01000001001"]
+t[gene.name]
 
 eg <- exonsBy(txdb, "gene")
-eg["GSVIVG01000001001"]
+eg[gene.name]
 
 et <- exonsBy(txdb, "tx", use.names=TRUE)
 et["GSVIVT01000001001"]
@@ -581,7 +582,7 @@ if(dir.exists(out.dir))
   unlink(out.dir, recursive=TRUE)
 dir.create(path=out.dir)
 
-p2f <- "VCost.v3_14prep.gff3.gz"
+p2f <- "VCost.v3_15.gff3.gz"
 file.copy(from=p2f, to=paste0(out.dir, "/", basename(p2f)))
 
 gr <- import.gff(con=p2f, version="3", genome="IGGP12Xv2",
@@ -590,6 +591,7 @@ length(gr)
 ## with VCost.v3 (v10 from November 2017): 532145
 ## with VCost.v3 (v11 from December 2017): 532145
 ## with VCost.v3 (v14prep from December 21, 2017): 531877
+## with VCost.v3 (v15 from January 22, 2018): 531877
 
 p2f <- paste0(out.dir, "/GRanges.RData")
 save(gr, file=p2f)
@@ -600,8 +602,8 @@ if(file.exists(p2f))
 cat("SourceUrl: http://doi.org/10.15454/1.5009072354498936E12\n",
     file=p2f, append=TRUE)
 cat("SourceType: gff3\n", file=p2f, append=TRUE)
-cat("SourceVersion: 3\n", file=p2f, append=TRUE)
-cat("SourceLastModifiedDate: 2017-12-21\n", file=p2f, append=TRUE)
+cat("SourceVersion: 3\n", file=p2f, append=TRUE) # TODO: put 3.15?
+cat("SourceLastModifiedDate: 2018-01-22\n", file=p2f, append=TRUE)
 cat("DataProvider: URGI\n", file=p2f, append=TRUE)
 cat("Title: Vvinifera_URGI_IGGP12Xv2_V3.gff3.Rdata\n", file=p2f, append=TRUE)
 cat("Description: Gene Annotation for Vitis vinifera\n", file=p2f, append=TRUE)
@@ -627,6 +629,11 @@ txdb <- makeTxDbFromGRanges(gr)
 ## with VCost.v3 (v14prep from December 21, 2017)
 ##   no error
 ##   18 warnings: but only 2 seem to be related to the input data
+##     dropped transcripts because their exon ranks could not be inferred
+##     rejected transcripts because they have CDSs that cannot be mapped to an exon
+## with VCost.v3 (v15 from January 22, 2018)
+##   no error
+##   2 warnings
 ##     dropped transcripts because their exon ranks could not be inferred
 ##     rejected transcripts because they have CDSs that cannot be mapped to an exon
 
@@ -661,10 +668,10 @@ txdb <- loadDb(file=p2f)
 
 ## have a look at the resource
 txdb
-length(genes(txdb)) # 14prep: 42354
-length(transcripts(txdb)) # 14prep: 49359
-length(exons(txdb)) # 14prep: 200958
-length(cds(txdb)) # 14prep: 187169
+length(genes(txdb)) # v14prep: 42354 ; v15: 42357
+length(transcripts(txdb)) # v14prep: 49359 ; v15: 49359
+length(exons(txdb)) # v14prep: 200958 ; v15: 200958
+length(cds(txdb)) # v14prep: 187169 ; v15: 187169
 
 ## let us choose a "good-example" gene:
 ## Vitvi01g00050: chr1, 3 mRNAs, 13 exons
@@ -675,6 +682,7 @@ g[gene.name]
 
 t <- transcriptsBy(txdb, "gene")
 t[gene.name]
+## btw v14prep and v15, the "tx_name" column was fixed
 
 eg <- exonsBy(txdb, "gene")
 eg[gene.name]
