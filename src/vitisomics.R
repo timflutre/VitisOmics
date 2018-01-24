@@ -582,7 +582,7 @@ if(dir.exists(out.dir))
   unlink(out.dir, recursive=TRUE)
 dir.create(path=out.dir)
 
-p2f <- "VCost.v3_17.gff3.gz"
+p2f <- "VCost.v3_18.gff3.gz"
 file.copy(from=p2f, to=paste0(out.dir, "/", basename(p2f)))
 
 gr <- import.gff(con=p2f, version="3", genome="IGGP12Xv2",
@@ -593,7 +593,8 @@ length(gr)
 ## with VCost.v3 (v14prep from December 21, 2017): 531877
 ## with VCost.v3 (v15 from January 22, 2018): 531877
 ## with VCost.v3 (v17 from January 23, 2018): 531842
-sum(is.na(gr$Name)) # v17: 2
+## with VCost.v3 (v18 from January 24, 2018): 531841
+sum(is.na(gr$Name)) # v17: 2; v18: 0
 
 p2f <- paste0(out.dir, "/GRanges.RData")
 save(gr, file=p2f)
@@ -643,6 +644,11 @@ txdb <- makeTxDbFromGRanges(gr)
 ##   2 warnings
 ##     dropped transcripts because their exon ranks could not be inferred
 ##     rejected transcripts because they have CDSs that cannot be mapped to an exon
+## with VCost.v3 (v18 from January 24, 2018)
+##   no error
+##   2 warnings
+##     dropped transcripts because their exon ranks could not be inferred
+##     rejected transcripts because they have CDSs that cannot be mapped to an exon
 
 ## ---------------------------------------------------------------------------
 ## task: check the TxDb on IGGP12Xv2 from Canaguier et al (2017) known as VCost.v3
@@ -675,15 +681,15 @@ txdb <- loadDb(file=p2f)
 
 ## have a look at the resource
 txdb
-length(genes(txdb)) # v14prep: 42354 ; v15: 42357 ; v17: 42409
-length(transcripts(txdb)) # v14prep: 49359 ; v15: 49359 ; v17: 49484
-length(exons(txdb)) # v14prep: 200958 ; v15: 200958 ; v17: 201557
-length(cds(txdb)) # v14prep: 187169 ; v15: 187169 ; v17: 227038
+length(genes(txdb)) # v14prep: 42354 ; v15: 42357 ; v17: 42409; v18: 42413
+length(transcripts(txdb)) # v14prep: 49359 ; v15: 49359 ; v17: 49484; v18: 49487
+length(exons(txdb)) # v14prep: 200958 ; v15: 200958 ; v17: 201557; v18: 201595
+length(cds(txdb)) # v14prep: 187169 ; v15: 187169 ; v17: 227038; v18: 227124
 
 ## to help debugging, save list of gene names
-write.table(names(genes(txdb)),
-            file="v17_list_42409_gene_names.txt",
-            quote=FALSE, row.names=FALSE, col.names=FALSE)
+## write.table(names(genes(txdb)),
+##             file="v17_list_42409_gene_names.txt",
+##             quote=FALSE, row.names=FALSE, col.names=FALSE)
 
 ## let us choose a "good-example" gene:
 ## Vitvi01g00050: chr1, 3 mRNAs, 13 exons
