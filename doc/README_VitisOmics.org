@@ -955,17 +955,17 @@ cd make_TxDb_IGGP12Xv2_Canaguier2017
 
 Make official GFF3 header:
 #+begin_src sh
-echo -e "##gff-version 3" > VCost.v3_15.gff3
+echo -e "##gff-version 3" > VCost.v3_17.gff3
 zcat ../../data/urgi/12Xv2_grapevine_genome_assembly.fa.gz \
   | awk 'BEGIN{RS=">"} {split($0,a,"\n"); if(length(a)==0) next; seqlen=0; for(i=2;i<=length(a);++i){seqlen += length(a[i])}; split(a[1],b," "); printf "##sequence-region "b[1]" 1 "seqlen"\n"}' \
-  | sort -k2,2V >> VCost.v3_15.gff3
+  | sort -k2,2V >> VCost.v3_17.gff3
 #+end_src
 
 Concatenate the annotations below, using the same chromosome names as for the BSgenome packages:
 #+begin_src sh
-zcat ../../data/urgi/Vitis_vinifera_gene_annotation_on_V2_15.gff3.gz >> VCost.v3_15.gff3
-cat VCost.v3_15.gff3 | sed 's/chr00/chrUkn/g' | sed 's/chr0/chr/g' | gzip > VCost.v3_15.gff3.gz
-rm VCost.v3_15.gff3
+zcat ../../data/urgi/Vitis_vinifera_gene_annotation_on_V2_17.gff3.gz >> VCost.v3_17.gff3
+cat VCost.v3_17.gff3 | sed 's/chr00/chrUkn/g' | sed 's/chr0/chr/g' | gzip > VCost.v3_17.gff3.gz
+rm VCost.v3_17.gff3
 #+end_src
 
 Convert the GFF3 to GRanges (R/Bioconductor objects): see =src/vitisomics.R=.
