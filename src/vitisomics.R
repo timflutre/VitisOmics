@@ -582,7 +582,7 @@ if(dir.exists(out.dir))
   unlink(out.dir, recursive=TRUE)
 dir.create(path=out.dir)
 
-p2f <- "VCost.v3_18.gff3.gz"
+p2f <- "VCost.v3_20.gff3.gz"
 file.copy(from=p2f, to=paste0(out.dir, "/", basename(p2f)))
 
 gr <- import.gff(con=p2f, version="3", genome="IGGP12Xv2",
@@ -594,7 +594,8 @@ length(gr)
 ## with VCost.v3 (v15 from January 22, 2018): 531877
 ## with VCost.v3 (v17 from January 23, 2018): 531842
 ## with VCost.v3 (v18 from January 24, 2018): 531841
-sum(is.na(gr$Name)) # v17: 2; v18: 0
+## with VCost.v3 (v20 from February 16, 2018): 531745
+sum(is.na(gr$Name)) # v17: 2; v18: 0; v20: 0
 
 p2f <- paste0(out.dir, "/GRanges.RData")
 save(gr, file=p2f)
@@ -605,16 +606,17 @@ if(file.exists(p2f))
 cat("SourceUrl: http://doi.org/10.15454/1.5009072354498936E12\n",
     file=p2f, append=TRUE)
 cat("SourceType: gff3\n", file=p2f, append=TRUE)
-cat("SourceVersion: 3\n", file=p2f, append=TRUE) # TODO: put 3.15?
-cat("SourceLastModifiedDate: 2018-01-22\n", file=p2f, append=TRUE)
+cat("SourceVersion: 3.20\n", file=p2f, append=TRUE)
+cat("SourceLastModifiedDate: 2018-02-16\n", file=p2f, append=TRUE)
 cat("DataProvider: URGI\n", file=p2f, append=TRUE)
-cat("Title: Vvinifera_URGI_IGGP12Xv2_V3.gff3.Rdata\n", file=p2f, append=TRUE)
+cat("Title: Vvinifera_URGI_IGGP12Xv2_V3-20.gff3.Rdata\n", file=p2f, append=TRUE)
 cat("Description: Gene Annotation for Vitis vinifera\n", file=p2f, append=TRUE)
 cat("Species: Vitis vinifera\n", file=p2f, append=TRUE)
 cat("TaxonomyId: 29760\n", file=p2f, append=TRUE)
 cat("Genome: IGGP12Xv2\n", file=p2f, append=TRUE)
 cat("Maintainer: Timothée Flutre timothee.flutre@inra.fr\n", file=p2f, append=TRUE)
-cat("Notes: compare to the original GFF3 file, chromosomes were slightly renamed to be compatible with the reference genome\n", file=p2f, append=TRUE)
+cat("Notes: compare to the original GFF3 file, chromosomes were slightly renamed to be compatible with the reference genome\n",
+    file=p2f, append=TRUE)
 
 tar(tarfile=paste0(out.dir, ".tar.gz"),
     files=out.dir, compression="gzip")
@@ -649,6 +651,10 @@ txdb <- makeTxDbFromGRanges(gr)
 ##   2 warnings
 ##     dropped transcripts because their exon ranks could not be inferred
 ##     rejected transcripts because they have CDSs that cannot be mapped to an exon
+## with VCost.v3 (v20 from February 16, 2018)
+##   no error
+##   1 warning
+##     "phase" column contains non-NA for exon; info ignored
 
 ## ---------------------------------------------------------------------------
 ## task: check the TxDb on IGGP12Xv2 from Canaguier et al (2017) known as VCost.v3
@@ -668,12 +674,10 @@ gr <- ahub[["AH59992"]]
 library(GenomicFeatures)
 txdb <- makeTxDbFromGRanges(gr)
 
-## TODO
-
 ## save the TxDb into a ".sqlite" database file
 ## so that it can be made available to other users
 p2f <- paste0("results/make_TxDb_IGGP12Xv2_Canaguier2017/",
-              "TxDb_Vvinifera_IGGP12Xv2_URGIv3.sqlite")
+              "TxDb_Vvinifera_IGGP12Xv2_URGIv3-20.sqlite")
 saveDb(x=txdb, file=p2f)
 
 ## load the TxDb
@@ -681,15 +685,10 @@ txdb <- loadDb(file=p2f)
 
 ## have a look at the resource
 txdb
-length(genes(txdb)) # v14prep: 42354 ; v15: 42357 ; v17: 42409; v18: 42413
-length(transcripts(txdb)) # v14prep: 49359 ; v15: 49359 ; v17: 49484; v18: 49487
-length(exons(txdb)) # v14prep: 200958 ; v15: 200958 ; v17: 201557; v18: 201595
-length(cds(txdb)) # v14prep: 187169 ; v15: 187169 ; v17: 227038; v18: 227124
-
-## to help debugging, save list of gene names
-## write.table(names(genes(txdb)),
-##             file="v17_list_42409_gene_names.txt",
-##             quote=FALSE, row.names=FALSE, col.names=FALSE)
+length(genes(txdb)) # v14prep: 42354 ; v15: 42357 ; v17: 42409; v18: 42413; v20: 42413
+length(transcripts(txdb)) # v14prep: 49359 ; v15: 49359 ; v17: 49484; v18: 49487; v20: 50814
+length(exons(txdb)) # v14prep: 200958 ; v15: 200958 ; v17: 201557; v18: 201595; v20: 202982
+length(cds(txdb)) # v14prep: 187169 ; v15: 187169 ; v17: 227038; v18: 227124; v20: 234788
 
 ## let us choose a "good-example" gene:
 ## Vitvi01g00050: chr1, 3 mRNAs, 13 exons
@@ -707,10 +706,6 @@ eg[gene.name]
 ## btw v15 and v17, the "exon_name" column was fixed
 
 et <- exonsBy(txdb, "tx", use.names=TRUE)
-## in v17:
-## Warning message:
-## In .set_group_names(grl, use.names, txdb, by) :
-##   some group names are NAs or duplicated
 names(et)[grep(gene.name, names(et))]
 et[paste0(gene.name, ".t01")]
 
