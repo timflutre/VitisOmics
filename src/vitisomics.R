@@ -664,11 +664,13 @@ library(AnnotationHub)
 ahub <- AnnotationHub()
 "Vitis vinifera" %in% unique(ahub$species)
 
+query(ahub, "Vitis vinifera")
+
 "URGI" %in% unique(ahub$dataprovider)
 query(ahub, c("Vitis vinifera", "URGI"))
 
 ## download the GRanges
-gr <- ahub[["AH59992"]]
+gr <- ahub[["AH60919"]]
 
 ## make the TxDb
 library(GenomicFeatures)
@@ -678,6 +680,8 @@ txdb <- makeTxDbFromGRanges(gr)
 ## so that it can be made available to other users
 p2f <- paste0("results/make_TxDb_IGGP12Xv2_Canaguier2017/",
               "TxDb_Vvinifera_IGGP12Xv2_URGIv3-20.sqlite")
+if(file.exists(p2f))
+  file.remove(p2f)
 saveDb(x=txdb, file=p2f)
 
 ## load the TxDb

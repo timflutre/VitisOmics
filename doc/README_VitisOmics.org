@@ -977,8 +977,7 @@ But there is a problem: 655 CDS have a missing phase (see =src/vitisomics.R=).
 I contacted with the author (J. Grimplet) and maintainer (N. Mohellibi) of the annotations, and we collectively fixed the issue.
 
 I hence re-sent the final version (v20) to Lori Sheperd on March 1, 2018.
-
-TODO: wait for it to be available via the AnnotationHub
+It is now available via the AnnotationHub (ID=AH60919).
 
 *** TxDb on IGGP12Xv0 from CRIBI (V2.1)
 Set up the directory:
