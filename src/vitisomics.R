@@ -319,14 +319,23 @@ setwd(paste0(repo.dir, "/results/grapereseq_18k_vitis_microarray"))
 p2f <- paste0(repo.dir, "/data/urgi/Grapereseq_cultivated_pool_data.zip")
 (files <- unzip(zipfile=p2f, list=TRUE))
 p2f.xlsx <- files$Name[grep("xlsx", files$Name)]
+if(file.exists(basename(p2f.xlsx)))
+  file.remove(basename(p2f.xlsx))
 unzip(zipfile=p2f, files=p2f.xlsx, junkpaths=TRUE)
 
 ## convert xlsx into tsv
-dat <- readWorksheetFromFile(file=basename(p2f.xlsx), sheet="SNP Markers")
-## takes ~ 5 seconds
+system.time(
+    dat <- readWorksheetFromFile(file=basename(p2f.xlsx),
+                                 sheet="SNP Markers"))
+## takes ~ 6 seconds
 str(dat)
-out.file <- "grapereseq_18k_vitis_microarray_12x0-2-12x2.tsv.gz"
-write.table(dat, file=gzfile(out.file), quote=FALSE, sep="\t", row.names=FALSE)
+colnames(dat)[colnames(dat) == "Variation.Allele_réel"] <- "Variation.RealAllele"
+colnames(dat)[colnames(dat) == "X5.Flanking"] <- "Flanking.5"
+colnames(dat)[colnames(dat) == "X3.Flanking"] <- "Flanking.3"
+
+## write in gzip-compressed tsv format
+tsv.file <- "grapereseq_18k_vitis_microarray_12x0-2-12x2.tsv.gz"
+write.table(dat, file=gzfile(tsv.file), quote=FALSE, sep="\t", row.names=FALSE)
 
 ## ---------------------------------------------------------------------------
 ## task: make TxDb on IGGP12Xv0 from CRIBI (V2.1)
