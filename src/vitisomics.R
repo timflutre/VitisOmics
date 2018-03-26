@@ -1,5 +1,5 @@
 ## Aim: compare original files from URGI and NCBI
-## Copyright (C) 2015-2017 Institut National de la Recherche Agronomique
+## Copyright (C) 2015-2018 Institut National de la Recherche Agronomique
 ## License: GPL-3+
 ## Persons: Timothée Flutre [cre,aut]
 ## Versioning: https://github.com/timflutre/VitisOmics/src
@@ -306,6 +306,27 @@ sum(dat2[dat2$aln.sseqid == dat2$Chromosome, "aln.sstart"] >=
     dat2[dat2$aln.sseqid == dat2$Chromosome, "aln.send"] <=
     dat2[dat2$aln.sseqid == dat2$Chromosome, "Coordinate"])
 ## min.ver=0: 0 ; min.ver=2: 1
+
+## ---------------------------------------------------------------------------
+## task: extract Illumina SNP metadata on 12x0 and 12x2
+
+options(java.parameters="-Xmx1024m")
+library(XLConnect)
+
+setwd(paste0(repo.dir, "/results/grapereseq_18k_vitis_microarray"))
+
+## extract the xlsx file
+p2f <- paste0(repo.dir, "/data/urgi/Grapereseq_cultivated_pool_data.zip")
+(files <- unzip(zipfile=p2f, list=TRUE))
+p2f.xlsx <- files$Name[grep("xlsx", files$Name)]
+unzip(zipfile=p2f, files=p2f.xlsx, junkpaths=TRUE)
+
+## convert xlsx into tsv
+dat <- readWorksheetFromFile(file=basename(p2f.xlsx), sheet="SNP Markers")
+## takes ~ 5 seconds
+str(dat)
+out.file <- "grapereseq_18k_vitis_microarray_12x0-2-12x2.tsv.gz"
+write.table(dat, file=gzfile(out.file), quote=FALSE, sep="\t", row.names=FALSE)
 
 ## ---------------------------------------------------------------------------
 ## task: make TxDb on IGGP12Xv0 from CRIBI (V2.1)

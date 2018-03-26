@@ -688,6 +688,11 @@ Usage:
 transferAnnot_from_Vitis_12X_V0_to_V2.pl -p Position_scaffolds_V1_V2_verbose.txt -a Vitis_vinifera_annotation.gff -o Vitis_vinifera_annotation_12X.2.gff
 #+end_src
 
+*** Extract Illumina SNP metadata on 12x0 and 12x2
+The GrapeReSeq zip archive is downloaded in =data/urgi/=.
+
+See task in =src/vitisomics.R= which generates files in =results/grapereseq_18k_vitis_microarray/=.
+
 ** Manipulations of files from NCBI
 #+begin_src sh
 mkdir -p ncbi; cd ncbi/
