@@ -338,6 +338,26 @@ tsv.file <- "grapereseq_18k_vitis_microarray_12x0-2-12x2.tsv.gz"
 write.table(dat, file=gzfile(tsv.file), quote=FALSE, sep="\t", row.names=FALSE)
 
 ## ---------------------------------------------------------------------------
+## task: compare all SNP metadata for Illumina 18k microarray
+
+## 12x0 metadata
+p2f <- paste0(repo.dir, "/results/urgi",
+              "/GrapeReSeq_Illumina_18K_SNP_array.txt.gz")
+dat.12x0 <- read.table(p2f, header=TRUE, sep="\t")
+str(dat.12x0)
+
+## corresp 12x0-12x2
+p2f <- paste0(repo.dir, "/results/grapereseq_18k_vitis_microarray",
+              "/grapereseq_18k_vitis_microarray_12x0-2-12x2.tsv.gz")
+dat.both <- read.table(p2f, header=TRUE, sep="\t")
+str(dat.both)
+## one marker name is duplicated: SNP1021_163
+(mrk <- as.character(dat.both$MarkerName[duplicated(dat.both$MarkerName)]))
+dat.both[dat.both$MarkerName == mrk,]
+
+stopifnot(all(dat.both$MarkerName %in% dat.12x0$Locus_Name))
+
+## ---------------------------------------------------------------------------
 ## task: make TxDb on IGGP12Xv0 from CRIBI (V2.1)
 
 library(rtracklayer)
