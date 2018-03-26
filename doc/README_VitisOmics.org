@@ -77,7 +77,7 @@ TODO: retrieve whole genome data from other cultivars than PN40024, e.g. Sultani
 
 #+begin_src sh
 mkdir -p urgi; cd urgi/
-../../src/download_urgi.bash
+nohup ../../src/download_urgi.bash >& stdout_download_urgi.txt &
 #+end_src
 
 Remarks:

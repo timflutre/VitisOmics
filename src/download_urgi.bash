@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
-# Copyright (C) 2015-2016 Institut National de la Recherche Agronomique (INRA)
+# Copyright (C) 2015-2018 Institut National de la Recherche Agronomique (INRA)
 # License: GPL-3+
 # Author: Timothée Flutre
 
 # https://urgi.versailles.inra.fr/Species/Vitis/Data-Sequences/Genome-sequences
 # https://urgi.versailles.inra.fr/Species/Vitis/Annotations
+# https://urgi.versailles.inra.fr/Species/Vitis/Data-Sequences/Genotyping-data
 
 echo "12X.0 version of the grapevine reference genome sequence from The French-Italian Public Consortium (PN40024)"
 if [ ! -f VV_12X_embl_102_WGS_contigs.fsa.gz ]; then
@@ -117,3 +118,6 @@ if [ $(ls -1 *.zip 2>/dev/null | wc -l) -ne 0 ]; then
     fi
   done
 fi
+
+echo "10207 SNPs for 783 grape cultivars"
+wget --timestamping https://urgi.versailles.inra.fr/files/Vini/Grapereseq_cultivated_pool_data.zip
