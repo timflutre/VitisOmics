@@ -182,6 +182,11 @@ table(dat$Source)
 ## ICVV IGA-MAF0.05  IGA-MAF0.1  URGI
 ##  187        1335       12040  4509
 
+table(dat$Sequence_Orientation)
+## FORWARD REVERSE
+##   18070       1
+dat[dat$Sequence_Orientation == "REVERSE",] # SNP1021_163
+
 ## make the sequences keeping the first allele
 tmp <- head(dat)
 tmp$Sequence[1]
@@ -210,10 +215,80 @@ writeXStringSet(seq.set[dat$Source == "URGI"],
 dat$allele1 <- sapply(strsplit(dat$Sequence, "\\[|\\/|\\]"), `[`, 2)
 dat$allele2 <- sapply(strsplit(dat$Sequence, "\\[|\\/|\\]"), `[`, 3)
 dat$snp.coord.intra <- sapply(strsplit(dat$Sequence, "\\[.*"), nchar) + 1
+## the first base has coord 1 (as in GFF, but not as in BED which starts at 0)
 
 ## save information about the 18K SNPs in a file
 out.file <- "results/urgi/GrapeReSeq_Illumina_18K_SNP_array.txt.gz"
 write.table(dat, gzfile(out.file), quote=FALSE, sep="\t", row.names=FALSE)
+
+## ---------------------------------------------------------------------------
+## task: save coordinates of the 18K SNPs in the GFF3 format
+## https://github.com/The-Sequence-Ontology/Specifications/blob/master/gff3.md
+
+library(rtracklayer)
+library(BSgenome.Vvinifera.URGI.IGGP12Xv0)
+
+## load file
+f <- "results/urgi/GrapeReSeq_Illumina_18K_SNP_array.txt.gz"
+dat <- read.table(f, header=TRUE, sep="\t")
+dim(dat)
+dat[1,]
+
+table(dat$Source)
+## ICVV IGA-MAF0.05  IGA-MAF0.1        URGI
+##  187        1335       12040        4509
+
+summary(dat$Final_Score)
+
+## load the reference genome sequence on which the coordinates belong
+table(dat$Genome_Build_Version)
+##   12  12.1
+## 4696 13375
+## I don't know what these "Genome_Build_Version" correspond to
+table(dat$Chromosome)
+## it's likely to be the 12X.v0
+
+## remove the 24 SNPs on plastid
+dat <- droplevels(dat[! dat$Chromosome == "Pltd",])
+nrow(dat)
+table(dat$Chromosome)
+
+## rename the unknown chromosome
+levels(dat$Chromosome)[levels(dat$Chromosome) == "chrUn"] <- "chrUkn"
+table(dat$Chromosome)
+
+## load the 12X.v0 reference genome sequence
+seqinfo12x0 <- seqinfo(BSgenome.Vvinifera.URGI.IGGP12Xv0)
+(seqinfo12x0.df <- as.data.frame(seqinfo12x0))
+
+## make an object
+gr <- GRanges(seqnames=Rle(dat$Chromosome),
+              ranges=IRanges(start=dat$Coordinate, end=dat$Coordinate),
+              strand=rep("*", nrow(dat)),
+              seqinfo=seqinfo12x0,
+              source=dat$Source,
+              type="SNP",
+              Alias=dat$Ilmn_Id)
+seqlevels(gr) <- seqlevelsInUse(gr)
+names(gr) <- dat$Locus_Name
+score(gr) <- dat$Final_Score
+gr
+
+## save to file in GFF3 format
+out.file <- "results/urgi/GrapeReSeq_Illumina_18K_SNP_array_no-Pltd_12Xv0.gff3"
+## export(gr, out.file, format="GFF3", index=FALSE)
+## it's better to have the "sequence-region" directives
+cat("##gff-version 3\n",
+    file=out.file, append=FALSE)
+cat(paste0("##genome-build .\t", unique(genome(seqinfo12x0)), "\n"),
+    file=out.file, append=TRUE)
+tmp <- apply(cbind(rownames(seqinfo12x0.df), 1, seqinfo12x0.df$seqlengths), 1,
+             function(x){
+               paste0("##sequence-region ", paste(x, collapse=" "))
+             })
+cat(tmp, sep="\n",
+    file=out.file, append=TRUE)
+export(gr, out.file, format="GFF3", append=TRUE, index=FALSE)
 
 ## ---------------------------------------------------------------------------
 ## task: plot SNP density along 12x0 chromosomes from Illumina 18k array
@@ -340,22 +415,60 @@ write.table(dat, file=gzfile(tsv.file), quote=FALSE, sep="\t", row.names=FALSE)
 ## ---------------------------------------------------------------------------
 ## task: compare all SNP metadata for Illumina 18k microarray
 
+library(rtracklayer)
+
 ## 12x0 metadata
 p2f <- paste0(repo.dir, "/results/urgi",
               "/GrapeReSeq_Illumina_18K_SNP_array.txt.gz")
 dat.12x0 <- read.table(p2f, header=TRUE, sep="\t")
 str(dat.12x0)
+nrow(dat.12x0) # 18071
 
-## corresp 12x0-12x2
+## corresp 12x0-12x2 from suppl of GrapeReSeq article (Laucou et al, 2017)
 p2f <- paste0(repo.dir, "/results/grapereseq_18k_vitis_microarray",
               "/grapereseq_18k_vitis_microarray_12x0-2-12x2.tsv.gz")
 dat.both <- read.table(p2f, header=TRUE, sep="\t")
+nrow(dat.both) # 10207
 str(dat.both)
-## one marker name is duplicated: SNP1021_163
+nlevels(dat.both$MarkerName) # 10206
 (mrk <- as.character(dat.both$MarkerName[duplicated(dat.both$MarkerName)]))
+## one marker name is duplicated: SNP1021_163
 dat.both[dat.both$MarkerName == mrk,]
+## different Illumina IDs and coords between rows
 
-stopifnot(all(dat.both$MarkerName %in% dat.12x0$Locus_Name))
+## rename properly
+dat.12x0[dat.12x0$Locus_Name == mrk, c("Locus_Name","Ilmn_Id")]
+dat.12x0[dat.12x0$Ilmn_Id == "SNP1021_163-192_T_F_2070922572", "Locus_Name"]
+dat.12x0[dat.12x0$Ilmn_Id == "chr1_22715654_C_T-1_B_F_2069768247", "Locus_Name"]
+## SNP1021_163 -> chr1_22715654_C_T
+dat.both$MarkerName <- as.character(dat.both$MarkerName)
+dat.both$MarkerName[
+             dat.both$MarkerSequenceName.Illumina_ID ==
+             "chr1_22715654_C_T-1_B_F_2069768247"] <-
+  "chr1_22715654_C_T"
+dat.both$MarkerName <- as.factor(dat.both$MarkerName)
+nlevels(dat.both$MarkerName) # 10207
+
+stopifnot(all(dat.both$MarkerName %in% dat.12x0$Locus_Name)) # ok
+
+dat.both[1,]
+snp <- dat.both$MarkerName[1]
+dat.12x0[as.character(dat.12x0$Locus_Name) == snp,]
+
+## compare with the GFF3 file obtained via the Perl conversion script
+p2f <- paste0(repo.dir, "/results/urgi",
+              "/GrapeReSeq_Illumina_18K_SNP_array_no-Pltd_12Xv2.gff3")
+dat.12x2 <- import(p2f, format="gff3")
+length(dat.12x2) # 18047
+names(dat.12x2) <- gsub("chrUkn", "chrUn", dat.12x2$ID)
+dat.12x2[1]
+
+stopifnot(all(names(dat.12x2) %in% dat.12x0$Locus_Name)) # ok
+
+## compare conversion with Perl script vs GrapeReSeq supplement
+
+## comparison
+all(dat.both$MarkerName %in% names(dat.12x2)) # TRUE
 
 ## ---------------------------------------------------------------------------
 ## task: make TxDb on IGGP12Xv0 from CRIBI (V2.1)
