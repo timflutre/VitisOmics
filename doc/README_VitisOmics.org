@@ -699,7 +699,8 @@ cat data/urgi/Position_scaffolds_V1_V2_verbose.txt | sed 1d \
 
 Example: convert SNP coordinates of the GrapeReSeq microarray from 12Xv0 to 12Xv2.
 Note that the script doesn't handle directives, they hence have to be added by hand.
-Moreover, the Position file should be edited to replace the first space on line 2 by a tabulation (this has been reported to the URGI on April 2018).
+Moreover, the Position file should be edited to replace the first space on line 2 by a tabulation (this has been reported to the URGI, and fixed by them, on April 2018).
+Finally, to comply with the BSgenome packages, the unknown chromosome should be named "chrUkn" instead of "chrUn" (but the original SNP identifiers containing "chrUn" should not be modified!).
 
 #+begin_src sh
 cd results/urgi/
@@ -713,8 +714,7 @@ echo -e "##genome-build .\tIGGP12Xv2" >> GrapeReSeq_Illumina_18K_SNP_array_no-Pl
 zcat ../../data/urgi/12Xv2_grapevine_genome_assembly.fa.gz \
   | awk 'BEGIN{RS=">"} {split($0,a,"\n"); if(length(a)==0) next; seqlen=0; for(i=2;i<=length(a);++i){seqlen += length(a[i])}; split(a[1],b," "); printf "##sequence-region "b[1]" 1 "seqlen"\n"}' \
   | sort -k2,2V >> GrapeReSeq_Illumina_18K_SNP_array_no-Pltd_12Xv2.gff3
-cat tmp_out | sed 's/chrUn/chrUkn/g' \
-                  >> GrapeReSeq_Illumina_18K_SNP_array_no-Pltd_12Xv2.gff3
+cat tmp_out >> GrapeReSeq_Illumina_18K_SNP_array_no-Pltd_12Xv2.gff3
 rm tmp_in tmp_out
 cat GrapeReSeq_Illumina_18K_SNP_array_no-Pltd_12Xv0.gff3 | grep -v "#" \
   | wc -l # 18047
