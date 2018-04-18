@@ -709,6 +709,7 @@ cat GrapeReSeq_Illumina_18K_SNP_array_no-Pltd_12Xv0.gff3 \
   -p ../../data/urgi/Position_scaffolds_V1_V2_verbose.txt \
   -a tmp_in -o tmp_out
 echo -e "##gff-version 3" > GrapeReSeq_Illumina_18K_SNP_array_no-Pltd_12Xv2.gff3
+echo -e "##genome-build .\tIGGP12Xv2" >> GrapeReSeq_Illumina_18K_SNP_array_no-Pltd_12Xv2.gff3
 zcat ../../data/urgi/12Xv2_grapevine_genome_assembly.fa.gz \
   | awk 'BEGIN{RS=">"} {split($0,a,"\n"); if(length(a)==0) next; seqlen=0; for(i=2;i<=length(a);++i){seqlen += length(a[i])}; split(a[1],b," "); printf "##sequence-region "b[1]" 1 "seqlen"\n"}' \
   | sort -k2,2V >> GrapeReSeq_Illumina_18K_SNP_array_no-Pltd_12Xv2.gff3
