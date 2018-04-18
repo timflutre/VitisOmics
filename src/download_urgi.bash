@@ -18,16 +18,20 @@ fi
 if [ ! -f VV_chr12x.fsa.gz ]; then
   wget --timestamping https://urgi.versailles.inra.fr/download/vitis/VV_chr12x.fsa.zip
 fi
-if [ $(ls -1 *.zip 2>/dev/null | wc -l) -ne 0 ]; then
-  ls *.zip | while read f; do
-    unzip $f
-    prefix=$(echo $f | sed 's/.zip//')
-    if [ ! -f "${prefix}.gz" ]; then
-      gzip $prefix
-      rm -f $f
-    fi
-  done
-fi
+declare -a arr=("VV_12X_embl_102_WGS_contigs.fsa.zip"
+                "VV_12X_embl_102_Scaffolds.fsa.zip"
+                "VV_chr12x.fsa.zip")
+for f in  "${arr[@]}"; do
+  if [ ! -f "$f" ]; then
+    break
+  fi
+  unzip "$f"
+  prefix=$(echo "$f" | sed 's/.zip//')
+  if [ ! -f "${prefix}.gz" ]; then
+    gzip $prefix
+    rm -f "$f"
+  fi
+done
 
 echo "12X.0 \"golden path\" files for chromosome assembly (2009_12_04)"
 ## note: wget doesn't allow "--timestamping" and "-O" together
@@ -108,16 +112,22 @@ wget --timestamping https://urgi.versailles.inra.fr/files/Vini/remappingTool4Vit
 echo "zip archive with the 12x2 structural annotation (VCost.v3)"
 wget --timestamping https://urgi.versailles.inra.fr/files/Vini/Vitis%2012X.2%20annotations/Vitis_vinifera_VCost.v3_20_with_header.genbank.zip
 wget --timestamping https://urgi.versailles.inra.fr/files/Vini/Vitis%2012X.2%20annotations/Vitis_vinifera_gene_annotation_on_V2_20.gff3.zip
-if [ $(ls -1 *.zip 2>/dev/null | wc -l) -ne 0 ]; then
-  ls *.zip | while read f; do
-    unzip $f
-    prefix=$(echo $f | sed 's/.zip//')
-    if [ ! -f "${prefix}.gz" ]; then
-      gzip $prefix
-      rm -f $f
-    fi
-  done
-fi
+declare -a arr=("Vitis_vinifera_VCost.v3_20_with_header.genbank.zip"
+                "Vitis_vinifera_gene_annotation_on_V2_20.gff3.zip")
+for f in  "${arr[@]}"; do
+  if [ ! -f "$f" ]; then
+    break
+  fi
+  unzip "$f"
+  prefix=$(echo "$f" | sed 's/.zip//')
+  if [ ! -f "${prefix}.gz" ]; then
+    gzip $prefix
+    rm -f "$f"
+  fi
+done
+
+echo "correspondance between V1 and V3 VCost annotations"
+wget --timestamping https://urgi.versailles.inra.fr/content/download/5723/43038/file/list_genes_vitis_correspondencesV3_1.xlsx
 
 echo "10207 SNPs for 783 grape cultivars"
 wget --timestamping https://urgi.versailles.inra.fr/files/Vini/Grapereseq_cultivated_pool_data.zip
